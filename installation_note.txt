@@ -3,3 +3,6 @@ https://wandb.ai/wandb/common-ml-errors/reports/How-to-Correctly-Install-TensorF
 
 
 opencv-contrib-python
+
+pip install jupyter
+conda install pywin32
