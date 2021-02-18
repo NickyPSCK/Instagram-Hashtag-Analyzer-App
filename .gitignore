@@ -1,0 +1,11 @@
+*desktop.ini
+.vscode/*
+__pycache__/*
+downloads/*
+model/*
+training_model/icassp2016_dataset/*
+static/downloads/*
+training_model/YOLO-COCO/yolov3.weights
+training_model/YOLO-COCO/yolov3.cfg
+training_model/YOLO-COCO/coco.names
+git-setup.txt

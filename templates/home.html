@@ -1,0 +1,121 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="author" content="colorlib.com">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/main.css')}}" rel="stylesheet" />
+
+    <title>SMH: Social Media Hashtag Analyzer</title>
+
+  </head>
+  <body>
+    <div class="s008">
+      
+
+      <form action="/result" target="_blank" method="GET">
+        <legend style="margin-bottom: 15px; color:white; font-size:40px; font-weight: bold">SMH Analyzer</legend>
+        <fieldset>
+        <div class="inner-form">
+          <div class="basic-search">
+            <div class="input-field">
+              
+              <input id="hashtag_txt" type="text" name="hashtag" placeholder="Type the hashtag here!" value="" required/>
+              <div class="icon-wrap">
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0 0 20 20">
+                  <path d="M18.869 19.162l-5.943-6.484c1.339-1.401 2.075-3.233 2.075-5.178 0-2.003-0.78-3.887-2.197-5.303s-3.3-2.197-5.303-2.197-3.887 0.78-5.303 2.197-2.197 3.3-2.197 5.303 0.78 3.887 2.197 5.303 3.3 2.197 5.303 2.197c1.726 0 3.362-0.579 4.688-1.645l5.943 6.483c0.099 0.108 0.233 0.162 0.369 0.162 0.121 0 0.242-0.043 0.338-0.131 0.204-0.187 0.217-0.503 0.031-0.706zM1 7.5c0-3.584 2.916-6.5 6.5-6.5s6.5 2.916 6.5 6.5-2.916 6.5-6.5 6.5-6.5-2.916-6.5-6.5z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="advance-search">
+            <!-- <span class="desc">Advanced Search</span> -->
+            <div class="row">
+              <div class="input-field">
+                <label style="color:white">SOURCE</label>
+                <div class="input-select">
+                  <select data-trigger="" name="source" required>
+                    <option value="Flickr" selected>Flickr</option>
+                    <option value="Instagram" >Instagram</option>
+                    <option value="Demo1">zDemo1</option>
+                    <option value="Demo2">zDemo2</option>
+                    <option value="Demo3">zDemo3</option>
+                  </select>
+                </div>
+              </div>
+              <div class="input-field">
+                <label style="color:white">LIMIT</label>
+                <div class="input-select">
+                  <select data-trigger="" name="limit" required>
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="150">150</option>
+                    <option value="200">200</option>
+                    <option value="500">500</option>
+                    <option value="1000">1000</option>
+                  </select>
+                </div>
+              </div>
+              <div class="input-field">
+                <!-- <button class="btn-search">Search</button> -->
+                <div class="group-btn">
+                  <button class="btn-delete" id="delete">Reset</button>
+                  <button class="btn-search">ANALYZE</button>
+                </div>
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <p style="margin-bottom: 15px; color:white; font-size:20px; font-weight: bold ; text-align:center">Social Media Hashtag Analyzer</p>
+
+      </form>
+    </div>
+    <script src="{{ url_for('static', filename='js/extention/choices.js')}}"></script>
+
+    <script>
+      const customSelects = document.querySelectorAll("select");
+      const deleteBtn = document.getElementById('delete')
+      const choices = new Choices('select',
+      {
+        searchEnabled: false,
+        removeItemButton: true,
+        // itemSelectText: '',
+      });
+      for (let i = 0; i < customSelects.length; i++)
+      {
+        customSelects[i].addEventListener('addItem', function(event)
+        {
+          if (event.detail.value)
+          {
+            let parent = this.parentNode.parentNode
+            parent.classList.add('valid')
+            parent.classList.remove('invalid')
+          }
+          else
+          {
+            let parent = this.parentNode.parentNode
+            parent.classList.add('invalid')
+            parent.classList.remove('valid')
+          }
+        }, false);
+      }
+      deleteBtn.addEventListener("click", function(e)
+      {
+        e.preventDefault()
+        const deleteAll = document.querySelectorAll('.choices__button')
+        for (let i = 0; i < deleteAll.length; i++)
+        {
+          deleteAll[i].click();
+        }
+      });
+
+    </script>
+  </body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+</html>
