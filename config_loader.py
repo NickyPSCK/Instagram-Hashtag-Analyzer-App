@@ -28,15 +28,15 @@ class ConfigLoader:
         self.__config.read(self.__arg_config_dir)
 
         # Decode Password
-        self.__config['login']['password'] = self.__decode_base_64(self.__config['login']['password'])
+        self.__config['login']['password'] = self.decode_base_64(self.__config['login']['password'])
 
-    def __encode_base_64(self, message):
+    def encode_base_64(self, message):
         message_bytes = message.encode('ascii')
         base64_bytes = base64.b64encode(message_bytes)
         base64_message = base64_bytes.decode('ascii')
         return base64_message
 
-    def __decode_base_64(slef, base64_message):
+    def decode_base_64(slef, base64_message):
         base64_bytes = base64_message.encode('ascii')
         message_bytes = base64.b64decode(base64_bytes)
         message = message_bytes.decode('ascii')
@@ -50,7 +50,7 @@ class ConfigLoader:
         else:
             config_dir = os.path.join(self.__default_dir, *'config/config_dev.ini'.split('/'))
 
-        self.__config['login']['password'] = self.__encode_base_64(password)
+        self.__config['login']['password'] = self.encode_base_64(password)
 
         with open(config_dir, 'w') as configfile:
             self.__config.write(configfile)
@@ -71,9 +71,9 @@ class ConfigLoader:
 
 if __name__ == '__main__':
 
-    # # Change Password
+    # Change Password
     # cl = ConfigLoader()
-    # cl.save_new_password('type your new password here')
+    # cl.save_new_password('nida.independent.studynida.independent.study')
     pass
 
 
