@@ -10,3 +10,7 @@ training_model/YOLO-COCO/yolov3.cfg
 training_model/YOLO-COCO/coco.names
 git-setup.txt
 installation_note.txt
+ad_dataset/*
+best-beaches-in-thailand.jpg
+cc
+download_image_for_

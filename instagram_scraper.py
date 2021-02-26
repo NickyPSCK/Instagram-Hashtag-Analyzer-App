@@ -46,14 +46,5 @@ class InstagramScraper:
 
 if __name__ == '__main__':
 
-    from config_loader import ConfigLoader
-    
-    cl = ConfigLoader()
-    user = cl.get('login', 'user', data_type=str)
-    password = cl.get('login', 'password', data_type=str)
-    insta = InstagramScraper(user=user, password=password)
-
-    prefix = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-    insta.download_from_hashtag(hashtag='apple', path='downloads/hashtag/instagram/', prefix=prefix, limit=5)
     pass
 

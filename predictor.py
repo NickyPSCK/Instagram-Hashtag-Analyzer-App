@@ -3,7 +3,6 @@ import numpy as np
 from pathlib import Path
 from tensorflow.keras.models import load_model 
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
-import efficientnet.keras as efn
 
 class ClassificationPredictor:
 
@@ -68,29 +67,8 @@ class ClassificationPredictor:
         
 if __name__ == '__main__':
 
-    # # Example
-    # from tensorflow.keras.applications.efficientnet import EfficientNetB7, preprocess_input, decode_predictions
-    # predictor = ClassificationPredictor( 
-    #                                             model_path='model/sentiment_classification.h5', 
-    #                                             preprocess_input=preprocess_input,
-    #                                             class_label=['Heightly Negative', 'Negative', 'Neutral', 'Positive', 'Heightly Positive']
-    #                                             )
-    # predictions, list_of_image_path = predictor.predict_form_path('test_img/*.jpg')
-
-    # print(predictor.decode_predictions(predictions, top=3))
-
-
-
-    from tensorflow.keras.applications.efficientnet import EfficientNetB7, preprocess_input, decode_predictions
-    predictor = ClassificationPredictor( 
-                                                model_path='model/style_classification.h5', 
-                                                preprocess_input=preprocess_input,
-                                                class_label=[  'Bokeh','Bright','Depth_of_field','Detailed','Ethereal','Geometric_composition',
-                                                            'Hazy', 'Hdr', 'Horror', 'Long_exposure', 'Macro', 'Melancholy', 'Minimal', 'Noir', 
-                                                            'Pastel', 'Romantic', 'Serene', 'Sunny', 'Texture','Vintage']   
-                                                )
-    predictions, list_of_image_path = predictor.predict_form_path('test_img/*.jpg')
-
-    print(predictor.decode_predictions(predictions, top=3))
-
     pass
+
+
+
+
