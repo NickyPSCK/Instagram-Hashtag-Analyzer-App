@@ -1,10 +1,22 @@
+# app.py
+# -------------------------------------------------------------------------------------------------------- 
+# INDEPENDENT STUDY: 
+# --------------------------------------------------------------------------------------------------------
+# IMPORT REQUIRED PACKAGES
+# --------------------------------------------------------------------------------------------------------
+
+
 import numpy as np
 import pandas as pd
 import tensorflow
 from flask import Flask, request, render_template
 
-from config_loader import ConfigLoader
+
+from util.init_sys import InitSystem
+# from util.config_loader import ConfigLoader
+
 from hashtag_analyzer import HashtagAnalyzer
+
 
 app = Flask(__name__)
 
@@ -116,23 +128,27 @@ def result():
 
 if __name__ == "__main__":
 
-    cl = ConfigLoader()
+    import json
+
+    cl = InitSystem().init()
 
     user = cl.get('login', 'user', data_type=str)
     password = cl.get('login', 'password', data_type=str)
+
+    with open('config/class.json', 'r') as f:
+        class_label = json.loads(f.read())
 
     analyzer = HashtagAnalyzer(     
                                     user=user, 
                                     password=password,
                                     sentiment_classifier_path='model/sentiment_classification.h5',
                                     sentiment_classifier_pre_prep_func = tensorflow.keras.applications.efficientnet.preprocess_input,
-                                    sentiment_classifier_class_label=['Highly_Negative', 'Negative', 'Neutral', 'Positive', 'Highly_Positive'],
+                                    sentiment_classifier_class_label=class_label['sentiment_classification_label'],
 
                                     style_classifier_path='model/style_classification.h5',
                                     style_classifier_pre_prep_func = tensorflow.keras.applications.efficientnet.preprocess_input,
-                                    style_classifier_class_label=[  'Bokeh','Bright','Depth_of_field','Detailed','Ethereal','Geometric_composition',
-                                                                        'Hazy', 'Hdr', 'Horror', 'Long_exposure', 'Macro', 'Melancholy', 'Minimal', 'Noir', 
-                                                                        'Pastel', 'Romantic', 'Serene', 'Sunny', 'Texture','Vintage']  
+                                    style_classifier_class_label=class_label['style_classification_label']
                                 )
 
+    
     app.run(debug = True, port = 5000)

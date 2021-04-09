@@ -1,6 +1,6 @@
 # config_loader.py
 # -------------------------------------------------------------------------------------------------------- 
-# INDEPENDENT STUDY
+# INDEPENDENT STUDY: HASHTAG ANALYZER
 # --------------------------------------------------------------------------------------------------------
 # IMPORT REQUIRED PACKAGES
 # --------------------------------------------------------------------------------------------------------
@@ -13,9 +13,9 @@ import configparser
 class ConfigLoader:
     def __init__(self):
         
-        self.__env = os.environ.get('RUNNING_ENV', None)
+        self.__env = os.environ.get('HASHTAG_ANALYZER_RUNNING_ENV', None)
 
-        self.__default_dir = os.path.dirname(os.path.realpath(__file__))
+        self.__default_dir = os.path.dirname(os.path.realpath(__file__)).rsplit(os.path.sep, 1)[0]
 
         if self.__env == 'uat':
             self.__arg_config_dir = os.path.join(self.__default_dir, *'config/config_uat.ini'.split('/'))
@@ -67,6 +67,8 @@ class ConfigLoader:
             return value
         else:
             raise Exception('Invalid section or key.')
+
+    
 
 
 if __name__ == '__main__':

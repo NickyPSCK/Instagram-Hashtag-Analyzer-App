@@ -10,7 +10,7 @@ class ClassificationPredictor:
                 model:object=None, 
                 model_path:str=None, 
                 preprocess_input=None,  
-                class_label:list=None):
+                class_label:dict=None):
 
         # Initial Class
         if model is not None and model_path is not None:
@@ -22,6 +22,11 @@ class ClassificationPredictor:
 
         self.preprocess_input = preprocess_input
         self.__class_label = class_label
+
+    def __class_label_tolist(self, label_dict:dict):
+        label = list(label_dict.items())
+        label_sorted = sorted(label, key= lambda x: int(x[0]))
+        return [label[1] for label in label_sorted]
 
     def load_image(self, path):     
         list_of_image_path = glob.glob(path)
@@ -52,19 +57,43 @@ class ClassificationPredictor:
     def decode_predictions(self, predictions, top=None):
         
         decoded = list()
+        class_label = self.__class_label.copy()
 
-        if self.__class_label is None:
-            self.__class_label = range(len(predictions[0]))
+        if class_label is None:
+            class_label = range(len(predictions[0]))
+        else:
+            class_label = self.__class_label_tolist(class_label)
 
         for prediction in predictions:
 
-            result = list((zip(self.__class_label, list(prediction))))
+            result = list((zip(class_label, list(prediction))))
             if top is not None:
                 result = sorted(result, key=lambda i: i[1], reverse=True)[:top]
             decoded.append(result)
 
         return decoded
+    
+class ObjectDetectionPrediction(ClassificationPredictor):
+
+    def decode_predictions(self, predictions, top=None):
         
+        decoded = list()
+        class_label = self.__class_label.copy()
+
+        if class_label is None:
+            class_label = range(len(predictions[0]))
+        else:
+            class_label = self.__class_label_tolist(class_label)
+
+        for prediction in predictions:
+
+            result = list((zip(class_label, list(prediction))))
+            if top is not None:
+                result = sorted(result, key=lambda i: i[1], reverse=True)[:top]
+            decoded.append(result)
+
+        return decoded
+            
 if __name__ == '__main__':
 
     pass
