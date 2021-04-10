@@ -1,3 +1,9 @@
+# hashtag_analyzer.py
+# -------------------------------------------------------------------------------------------------------- 
+# INDEPENDENT STUDY: HASHTAG ANALYZER
+# --------------------------------------------------------------------------------------------------------
+# IMPORT REQUIRED PACKAGES
+# --------------------------------------------------------------------------------------------------------
 from datetime import datetime, timezone
 from instagram_scraper import InstagramScraper
 from flickr_scraper import FlickrScraper
@@ -5,6 +11,9 @@ from image_analyzer import ImageAnalyzer
 
 import tensorflow
 
+# --------------------------------------------------------------------------------------------------------
+# HashtagAnalyzer
+# --------------------------------------------------------------------------------------------------------
 class HashtagAnalyzer:
     def __init__(   self, 
                     user:str, 

@@ -1,3 +1,9 @@
+# image_analyzer.py
+# -------------------------------------------------------------------------------------------------------- 
+# INDEPENDENT STUDY: HASHTAG ANALYZER
+# --------------------------------------------------------------------------------------------------------
+# IMPORT REQUIRED PACKAGES
+# --------------------------------------------------------------------------------------------------------
 import glob
 import numpy as np
 import pandas as pd 
@@ -8,6 +14,9 @@ from tensorflow.keras.preprocessing import image
 from predictor import ClassificationPredictor
 from object_detection import CountObjectImage
 
+# --------------------------------------------------------------------------------------------------------
+# ImageAnalyzer
+# --------------------------------------------------------------------------------------------------------
 class ImageAnalyzer:
     def __init__(   
                     self, 
