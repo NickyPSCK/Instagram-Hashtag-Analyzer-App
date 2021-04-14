@@ -1,4 +1,4 @@
-# init_sys.py
+# util/init_sys.py
 # -------------------------------------------------------------------------------------------------------- 
 # INDEPENDENT STUDY: HASHTAG ANALYZER
 # --------------------------------------------------------------------------------------------------------
@@ -47,8 +47,6 @@ class InitSystem:
 
         return self.__cl
     
-
-
     @__check_dev
     def get_config_loader(self):
         return self.__cl

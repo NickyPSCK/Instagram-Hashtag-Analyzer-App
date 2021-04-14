@@ -13,12 +13,18 @@ from flask import Flask, request, render_template
 
 
 from util.init_sys import InitSystem
+from util.utility import round_df
 # from util.config_loader import ConfigLoader
 
 from hashtag_analyzer import HashtagAnalyzer
 
 
 app = Flask(__name__)
+
+
+# -------------------------------------------------------------------------------------------
+# Helpper Function
+# -------------------------------------------------------------------------------------------
 
 def process_result(**dfs):
     df_list = list()

@@ -69,24 +69,33 @@ class ImageAnalyzer:
 
         return summary_table, freq_items_set
 
+    def create_classification_result_df(self, classification_result):
+
+        classification_result_dict = list()
+        for result in classification_result:
+            classification_result_dict.append(dict(result))
+
+        result_df = pd.DataFrame(classification_result_dict)
+        result_df['path'] = self.list_of_image_path
+
+        path = result_df['path']
+
+        result_df = result_df.drop(labels=['path'], axis=1)
+        result_df.insert(0, 'path', path)
+
+        return result_df
+
+
     def analyze(self):
+
         sentiment_result = self.sentiment_classification()
         style_result = self.style_classification()
 
-        sentiment_result_dict = list()
-        for result in sentiment_result:
-            sentiment_result_dict.append(dict(result))
-
-        style_result_dict = list()
-        for result in style_result:
-            style_result_dict.append(dict(result))
-
-        img_path_df = pd.DataFrame(self.list_of_image_path, columns=['path'])
-        sentiment_result_df = pd.DataFrame(sentiment_result_dict)
-        style_result_df = pd.DataFrame(style_result_dict)
-
-        result_sentiment_df = pd.concat([img_path_df, sentiment_result_df], axis=1)
-        result_style_df = pd.concat([img_path_df, style_result_df], axis=1)
+        # Raw classification result
+        result_sentiment_df = self.create_classification_result_df(sentiment_result)
+        result_style_df = self.create_classification_result_df(style_result)
+        
+        # 
 
         # ----------------------------------------------
         try:
@@ -100,27 +109,8 @@ class ImageAnalyzer:
 
 
 if __name__ == '__main__':
-    ia = ImageAnalyzer(
 
-                        sentiment_classifier_path='model/sentiment_classification.h5',
-                        sentiment_classifier_pre_prep_func = tensorflow.keras.applications.efficientnet.preprocess_input,
-                        sentiment_classifier_class_label=['Highly_Negative', 'Negative', 'Neutral', 'Positive', 'Highly_Positive'],
-
-                        style_classifier_path='model/style_classification.h5',
-                        style_classifier_pre_prep_func = tensorflow.keras.applications.efficientnet.preprocess_input,
-                        style_classifier_class_label=[  'Bokeh','Bright','Depth_of_field','Detailed','Ethereal','Geometric_composition',
-                                                            'Hazy', 'Hdr', 'Horror', 'Long_exposure', 'Macro', 'Melancholy', 'Minimal', 'Noir', 
-                                                            'Pastel', 'Romantic', 'Serene', 'Sunny', 'Texture','Vintage']                     
-                        )
-    ia.load_image(img_glob_pathname = 'test_img/*.jpg')
-    ia.load_image(img_glob_pathname = 'static/downloads/hashtag/instagram/20210107_150747_UTC_โต๋ไบร์ท/*.jpg')
-    
-    result_sentiment_df, result_style_df, summary_frequent_object_table_df, freq_items_set_df = ia.analyze()
-
-    print(result_sentiment_df)
-    print(result_style_df)
-    print(summary_frequent_object_table_df)
-    print(freq_items_set_df)
+    pass
 
 
     
