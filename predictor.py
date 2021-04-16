@@ -111,11 +111,10 @@ class ClassificationPredictor:
 class RatinaNetPrediction(ClassificationPredictor):
 
     def __init__(self, 
-                model:object=None, 
                 model_path:str=None, 
                 class_label:dict=None):
 
-        ClassificationPredictor.__init__(self, model, model_path, None, class_label)
+        ClassificationPredictor.__init__(self, None, model_path, None, class_label)
 
     def __load_model(self):
         if not self.loaded_model:
@@ -157,9 +156,13 @@ class RatinaNetPrediction(ClassificationPredictor):
 
         boxes, scores, class_ids = prediction
 
-        exist_class_ids = class_ids[class_ids > -1].copy()
-        exist_scores = scores[scores > -1].copy()
-        exist_boxes = list(np.reshape(boxes[boxes > -1], (-1, 4)))
+        selected = class_ids > -1
+
+        exist_class_ids = class_ids[selected]
+
+        exist_scores = scores[selected]
+
+        exist_boxes = list(boxes[selected])
 
         qualify_index = cv2.dnn.NMSBoxes(exist_boxes, exist_scores, confident_threshold, non_maxium_suppression_threshold)
 
@@ -172,17 +175,20 @@ class RatinaNetPrediction(ClassificationPredictor):
         result_df['box'] = exist_boxes
         result_df = result_df.astype({'class_id': 'str'})
         result_df['class'] = result_df['class_id'].map(self.class_label)
+        result_df = result_df.loc[qualify_index, :]
 
-        return result_df.loc[qualify_index, :]
+        return result_df
 
     def decode_predictions(self, predictions, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3):
         
         decoded = list()
+
         for i in range(len(predictions[0])):
             prediction = (predictions[0][i],  predictions[1][i],  predictions[2][i])
             prediction_df = self.decode_prediction(prediction, confident_threshold, non_maxium_suppression_threshold)
             selected_prediction_df = prediction_df[prediction_df['score'] > confident_threshold]['class']
             decoded.append(tuple(selected_prediction_df))
+            
         return decoded
 
 # --------------------------------------------------------------------------------------------------------
@@ -200,7 +206,7 @@ class YOLOPrediction(RatinaNetPrediction):
         self.yolo_img_width = 416             # width of the network input image
         self.yolo_img_hight = 416             # height of the network input image
 
-        RatinaNetPrediction.__init__(self, None, model_path, class_label)
+        RatinaNetPrediction.__init__(self, model_path, class_label)
 
     def __load_model(self):
         if not self.loaded_model:
@@ -283,14 +289,14 @@ class YOLOPrediction(RatinaNetPrediction):
 
                     # Add a new bounding box to our list
                     
-                    if x < 0:
-                        x = 0
-                    if y < 0:
-                        x = 0
-                    if width < 0:
-                        width = 0
-                    if height < 0:
-                        height = 0                   
+                    # if x < 0:
+                    #     x = 0
+                    # if y < 0:
+                    #     x = 0
+                    # if width < 0:
+                    #     width = 0
+                    # if height < 0:
+                    #     height = 0                   
                     boxes.append([x, y, int(width), int(height)])
                     scores.append(float(score))
                     class_ids.append(class_id)
@@ -300,9 +306,6 @@ class YOLOPrediction(RatinaNetPrediction):
         class_ids = np.array(class_ids)
 
         return boxes, scores, class_ids
-
-
-
 
 if __name__ == '__main__':
 
