@@ -63,6 +63,7 @@
                     <th scope="col" style="width:50%">Image</th>
                     <th scope="col" style="width:25%">Style Probability</th>
                     <th scope="col" style="width:25%">Sentiment Probability</th>
+                    <th scope="col" style="width:25%">Scence Probability</th>
               </tr>
             </thead>
               <tbody>
@@ -86,8 +87,14 @@
                           {{ col_data[0] }}: {{ col_data[1] }} <br/>
                         {% endfor %}
                         </p>
-                    </td>                              
-                          
+                     </td>                              
+                     <td>
+                      <p>
+                      {% for col_data in row_data[3] %}
+                        {{ col_data[0] }}: {{ col_data[1] }} <br/>
+                      {% endfor %}
+                      </p>
+                   </td>                             
                   </tr>
                   {% endfor %}
               </tbody>

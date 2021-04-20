@@ -17,8 +17,8 @@ from keras_retinanet import models
 from keras_retinanet.utils.image import preprocess_image, resize_image
 from keras_retinanet.utils.visualization import draw_box, draw_caption
 from keras_retinanet.utils.colors import label_color
-from mlxtend.preprocessing import TransactionEncoder
-from mlxtend.frequent_patterns import apriori, fpmax, fpgrowth, association_rules 
+# from mlxtend.preprocessing import TransactionEncoder
+# from mlxtend.frequent_patterns import apriori, fpmax, fpgrowth, association_rules 
 
 # --------------------------------------------------------------------------------------------------------
 # ClassificationPredictor
@@ -157,11 +157,8 @@ class RatinaNetPrediction(ClassificationPredictor):
         boxes, scores, class_ids = prediction
 
         selected = class_ids > -1
-
         exist_class_ids = class_ids[selected]
-
         exist_scores = scores[selected]
-
         exist_boxes = list(boxes[selected])
 
         qualify_index = cv2.dnn.NMSBoxes(exist_boxes, exist_scores, confident_threshold, non_maxium_suppression_threshold)
@@ -308,8 +305,6 @@ class YOLOPrediction(RatinaNetPrediction):
         return boxes, scores, class_ids
 
 if __name__ == '__main__':
-
-
     pass
 
 

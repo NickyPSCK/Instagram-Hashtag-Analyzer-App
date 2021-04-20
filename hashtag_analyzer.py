@@ -25,7 +25,21 @@ class HashtagAnalyzer:
 
                     style_classifier_path:str,
                     style_classifier_pre_prep_func:object,
-                    style_classifier_class_label:list
+                    style_classifier_class_label:list,
+
+                    scence_classifier_path:str,
+                    scence_classifier_pre_prep_func:object,
+                    scence_classifier_class_label:dict,         
+
+                    object_detection_model_path:str,
+                    object_detection_model_weight_path:str,
+                    object_detection_class_label:dict,
+                    object_detection_algorithm:str='yolo',
+
+                    frequent_itemsets_algorithm:str='apriori',
+                    min_support:float=0.3,
+                    association_metric:str='confidence',
+                    association_min_threshold:float=1
                     
                     ):
         
@@ -39,7 +53,21 @@ class HashtagAnalyzer:
 
                                             style_classifier_path=style_classifier_path,
                                             style_classifier_pre_prep_func=style_classifier_pre_prep_func,
-                                            style_classifier_class_label=style_classifier_class_label
+                                            style_classifier_class_label=style_classifier_class_label,
+
+                                            scence_classifier_path=scence_classifier_path,
+                                            scence_classifier_pre_prep_func=scence_classifier_pre_prep_func,
+                                            scence_classifier_class_label=scence_classifier_class_label,    
+
+                                            object_detection_model_path=object_detection_model_path,
+                                            object_detection_model_weight_path=object_detection_model_weight_path,
+                                            object_detection_class_label=object_detection_class_label,
+                                            object_detection_algorithm=object_detection_algorithm,
+
+                                            frequent_itemsets_algorithm=frequent_itemsets_algorithm,
+                                            min_support=min_support,
+                                            association_metric=association_metric,
+                                            association_min_threshold=association_min_threshold
         )
 
         self.downloaded_path_ig = 'static/downloads/hashtag/instagram/'
@@ -88,10 +116,10 @@ class HashtagAnalyzer:
 
         print('Analyzing..')
         self.__analyzer.load_image(target_result_dir)
-        result_sentiment_df, result_style_df, summary_frequent_object_table_df, freq_items_set_df = self.__analyzer.analyze()
+        analysis_result = self.__analyzer.analyze()
         print('Analyzed')
 
-        return result_sentiment_df, result_style_df, summary_frequent_object_table_df, freq_items_set_df
+        return analysis_result
 
 if __name__ == '__main__':
     from config_loader import ConfigLoader

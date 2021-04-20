@@ -12,7 +12,6 @@ import tensorflow
 from tensorflow.keras.preprocessing import image
 
 from predictor import ClassificationPredictor, RatinaNetPrediction, YOLOPrediction
-from object_detection import CountObjectImage
 from association_analyzer import calculate_support, calculate_association
 
 # --------------------------------------------------------------------------------------------------------
@@ -77,7 +76,6 @@ class ImageAnalyzer:
 
         self.__loaded_image = False
 
-
     def __check_load_image(class_method):
         def method_wrapper(self, *arg, **kwarg):
             if self.__loaded_image:
@@ -86,7 +84,6 @@ class ImageAnalyzer:
                 raise Exception('You must call .load_image() first.')
 
         return method_wrapper
-
 
     def load_image(self, img_glob_pathname):
         # Load all image
@@ -163,7 +160,6 @@ class ImageAnalyzer:
         result_style_df = self.create_classification_result_df(style_result)
         result_scence_df = self.create_classification_result_df(scence_result)
 
-        
         # try:
         single_support_df, association_rules_df = self.frequent_object_set()
         # except:
@@ -172,18 +168,19 @@ class ImageAnalyzer:
 
 
         return  {
-                    'raw_result_sentiment':result_sentiment_df, 
-                    'raw_result_style': result_style_df, 
-                    'raw_result_scence': result_scence_df, 
+                    'Raw Sentiment Analysis':result_sentiment_df, 
+                    'Raw Style Analysis': result_style_df, 
+                    'Raw Scence Analysis': result_scence_df, 
 
-                    'summary_result_sentiment': self.summary_classification_result(result_sentiment_df),
-                    'summary_result_style': self.summary_classification_result(result_style_df),
-                    'summary_result_scence': self.summary_classification_result(result_scence_df),
+                    'Summary Sentiment Analysis': self.summary_classification_result(result_sentiment_df),
+                    'Summary Style Analysis': self.summary_classification_result(result_style_df),
+                    'Summary Scence Analysis': self.summary_classification_result(result_scence_df),
 
-                    'single_support_result': single_support_df, 
-                    'association_rules_result': association_rules_df
+                    'Support': single_support_df, 
+                    'Association Rules': association_rules_df,
+
+                    'image_path': self.list_of_image_path
                 }
-
 
 if __name__ == '__main__':
 
