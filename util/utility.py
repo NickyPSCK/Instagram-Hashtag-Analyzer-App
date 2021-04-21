@@ -14,3 +14,4 @@ def round_df(df:object, decimals:int=2):
         if 'float' in str(dtype_dict[col_name]):
             df[col_name] = df[col_name].round(decimals=decimals)
     return df
+

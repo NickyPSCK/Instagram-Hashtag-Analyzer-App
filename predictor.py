@@ -11,14 +11,32 @@ import pandas as pd
 from pathlib import Path
 from tensorflow.keras.models import load_model 
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from tensorflow.image import resize
 
 # --------------------------------------------------------------------------------------------------------
 from keras_retinanet import models
 from keras_retinanet.utils.image import preprocess_image, resize_image
 from keras_retinanet.utils.visualization import draw_box, draw_caption
 from keras_retinanet.utils.colors import label_color
-# from mlxtend.preprocessing import TransactionEncoder
-# from mlxtend.frequent_patterns import apriori, fpmax, fpgrowth, association_rules 
+
+
+def load_images(path, color_mode:str='rgb', target_size:tuple=None):     
+    '''
+    Return List of Image's Arrays
+    '''
+    list_of_image_path = glob.glob(path)
+    list_of_image_path = ['/'.join(str(Path(str_path)).split('\\')) for str_path in list_of_image_path] 
+
+    all_input_arr = list()
+    for image_path in list_of_image_path:
+        image = load_img(image_path, color_mode='rgb', target_size=target_size)
+        input_arr = img_to_array(image)
+
+        if color_mode == 'bgr':
+            input_arr = input_arr[:, :, ::-1]
+        all_input_arr.append(input_arr)
+
+    return all_input_arr, list_of_image_path
 
 # --------------------------------------------------------------------------------------------------------
 # ClassificationPredictor
@@ -29,7 +47,9 @@ class ClassificationPredictor:
                 model:object=None, 
                 model_path:str=None, 
                 preprocess_input=None,  
-                class_label:dict=None):
+                class_label:dict=None,
+                img_size:tuple=(224, 224)
+                ):
 
 
         # Initial Class
@@ -41,6 +61,7 @@ class ClassificationPredictor:
         self.preprocess_input = preprocess_input
         self.class_label = class_label
         self.loaded_model = False
+        self.img_size = img_size
 
     def __class_label_tolist(self, label_dict:dict):
         label = list(label_dict.items())
@@ -53,23 +74,12 @@ class ClassificationPredictor:
                 self.model = load_model(self.model_path)
             self.loaded_model = True
 
-    def load_image(self, path, color_mode='rgb'):     
-        list_of_image_path = glob.glob(path)
-        list_of_image_path = ['/'.join(str(Path(str_path)).split('\\')) for str_path in list_of_image_path] 
-
-        all_input_arr = list()
-        for image_path in list_of_image_path:
-            image = load_img(image_path, color_mode='rgb', target_size=(224, 224))
-            input_arr = img_to_array(image)
-            if color_mode == 'bgr':
-                input_arr = input_arr[:, :, ::-1]
-            #input_arr = np.expand_dims(input_arr, axis=0)
-            all_input_arr.append(input_arr)
-        #input_arrs = np.vstack(all_input_arr)
-        input_arrs = np.stack(all_input_arr)
-        return input_arrs, list_of_image_path
-
     def predict(self, X):
+
+        # https://www.tensorflow.org/api_docs/python/tf/image/resize
+        resizer = lambda image: resize(image, size=self.img_size)
+        X = list(map(resizer, X))
+        X = np.stack(X)
 
         self.__load_model()
 
@@ -79,11 +89,6 @@ class ClassificationPredictor:
             X = self.preprocess_input(X)
         predictions = self.model.predict(X)
         return predictions
-
-    def predict_form_path(self, path):
-        X, list_of_image_path = self.load_image(path)
-        predictions = self.predict(X)
-        return predictions, list_of_image_path
 
     def decode_predictions(self, predictions, top=None):
         
@@ -116,41 +121,47 @@ class RatinaNetPrediction(ClassificationPredictor):
 
         ClassificationPredictor.__init__(self, None, model_path, None, class_label)
 
+        self.__ratinanet_min_side = 800
+        self.__ratinanet_max_side = 1333
+
     def __load_model(self):
         if not self.loaded_model:
             if self.model_path is not None:
                 self.model = models.load_model(self.model_path, backbone_name='resnet50')
             self.loaded_model = True
-        
-    def load_image(self, path, color_mode='bgr'): 
-        return ClassificationPredictor.load_image(self, path, color_mode)
 
     def predict(self, X):
+        '''
+        X: list of rgb image
+        '''
 
         self.__load_model()
 
         if self.model is None:
             raise Exception('Model not found.')
 
-        images = list()
+        all_boxes = list()
+        all_scores = list()
+        all_class_ids = list()
+
         for image in X:
-            image, scale = resize_image(image)
-            #image = np.expand_dims(image, axis=0)
-            images.append(image)
+            image, scale = resize_image(image, min_side=self.__ratinanet_min_side, max_side=self.__ratinanet_max_side)
+            image = image[:, :, ::-1] # Convert rgb to bgr
+            image = preprocess_image(image)
 
-        #X = np.vstack(images)
-        X = np.stack(images)
-        X = preprocess_image(X)
+            boxes, scores, class_ids = self.model.predict_on_batch(np.expand_dims(image, axis=0))
+            
+            all_boxes.append(boxes)
+            all_scores.append(scores)
+            all_class_ids.append(class_ids)
 
-        predictions = self.model.predict_on_batch(X)
-        predictions[0] = predictions[0].astype('int')
+        all_boxes = np.vstack(all_boxes).astype('int')
+        all_scores = np.vstack(all_scores)
+        all_class_ids = np.vstack(all_class_ids)
+
+        predictions = [all_boxes, all_scores, all_class_ids]
 
         return predictions
-
-    def predict_form_path(self, path):
-        X, list_of_image_path = self.load_image(path)
-        predictions = self.predict(X)
-        return predictions, list_of_image_path
 
     def decode_prediction(self, prediction, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3):
 
@@ -200,8 +211,9 @@ class YOLOPrediction(RatinaNetPrediction):
                 class_label:dict=None):
 
         self.model_weight_path = model_weight_path
-        self.yolo_img_width = 416             # width of the network input image
-        self.yolo_img_hight = 416             # height of the network input image
+        self.__yolo_img_width = 416             # width of the network input image
+        self.__yolo_img_hight = 416             # height of the network input image
+        self.__yolo_model_confident = 0.5
 
         RatinaNetPrediction.__init__(self, model_path, class_label)
 
@@ -242,7 +254,7 @@ class YOLOPrediction(RatinaNetPrediction):
             (h,w) = image.shape[:2]
             pre_preocessed_image = cv2.dnn.blobFromImage( image,
                                             1 / 255.0, # scaleFactor
-                                            (self.yolo_img_width, self.yolo_img_hight), # spatial size of the CNN
+                                            (self.__yolo_img_width, self.__yolo_img_hight), # spatial size of the CNN
                                             swapRB=True, crop=False)
 
             # Pass the blob to the network
@@ -276,7 +288,7 @@ class YOLOPrediction(RatinaNetPrediction):
                 score = class_prob[class_id]
 
                 # Filter out weak detections by ensuring the score is greater than the threshold
-                if score > 0:
+                if score >= self.__yolo_model_confident:
 
                     # Compute the (x, y)-coordinates of the bounding box
                     box = detection[0:4] * np.array( [w,h,w,h] )

@@ -11,7 +11,7 @@ import cv2
 import tensorflow
 from tensorflow.keras.preprocessing import image
 
-from predictor import ClassificationPredictor, RatinaNetPrediction, YOLOPrediction
+from predictor import load_images, ClassificationPredictor, RatinaNetPrediction, YOLOPrediction
 from association_analyzer import calculate_support, calculate_association
 
 # --------------------------------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ class ImageAnalyzer:
 
     def load_image(self, img_glob_pathname):
         # Load all image
-        self.__X, self.list_of_image_path = ClassificationPredictor().load_image(img_glob_pathname)
+        self.__X, self.list_of_image_path = load_images(img_glob_pathname, color_mode='rgb')
         self.__loaded_image = True
 
     @__check_load_image
@@ -116,9 +116,9 @@ class ImageAnalyzer:
 
         frequent_itemsets_df, association_rules_df = calculate_association(decoded_predictions, 
                                                                             frequent_itemsets_algorithm='apriori',
-                                                                            min_support=0.3,
-                                                                            association_metric='confidence',
-                                                                            association_min_threshold=1)
+                                                                            min_support=self.min_support,
+                                                                            association_metric=self.association_metric,
+                                                                            association_min_threshold=self.association_min_threshold)
 
         return single_support_df, association_rules_df
 

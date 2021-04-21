@@ -86,10 +86,10 @@ class HashtagAnalyzer:
         target_result_dir = f'{result_dir}*.jpg'
 
         self.__analyzer.load_image(target_result_dir)
-        result_sentiment_df, result_style_df, summary_frequent_object_table_df, freq_items_set_df = self.__analyzer.analyze()
+        analysis_result = self.__analyzer.analyze()
         print('Analyzed')
 
-        return result_sentiment_df, result_style_df, summary_frequent_object_table_df, freq_items_set_df
+        return analysis_result
 
     def analyze_flickr(self, hashtag, sort_by='relevance', limit=5):
         # Download Image
@@ -104,10 +104,10 @@ class HashtagAnalyzer:
         target_result_dir = f'{result_dir}*.jpg'
 
         self.__analyzer.load_image(target_result_dir)
-        result_sentiment_df, result_style_df, summary_frequent_object_table_df, freq_items_set_df = self.__analyzer.analyze()
+        analysis_result = self.__analyzer.analyze()
         print('Analyzed')
 
-        return result_sentiment_df, result_style_df, summary_frequent_object_table_df, freq_items_set_df
+        return analysis_result
 
     def analyze_demo(self, demo_id=1):
 

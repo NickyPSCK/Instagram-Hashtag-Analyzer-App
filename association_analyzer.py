@@ -67,6 +67,14 @@ def calculate_association(dataset:list,
             frequent_itemsets_df = fpmax(encoded_df, min_support=min_support, use_colnames=True)
 
         association_rules_df = association_rules(frequent_itemsets_df, metric=association_metric, min_threshold=association_min_threshold)
+        
+        # Formatting
+        association_rules_df['antecedents'] = association_rules_df['antecedents'].apply(lambda x:[i for i in x])
+        association_rules_df['consequents'] = association_rules_df['consequents'].apply(lambda x:[i for i in x])
+
+        association_rules_df.sort_values(by='support', ascending=False, inplace = True)
+        association_rules_df.reset_index(drop=True, inplace=True)
+
     
     except Exception as inst:
         print('Warning')
