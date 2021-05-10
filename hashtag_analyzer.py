@@ -27,9 +27,10 @@ class HashtagAnalyzer:
                     style_classifier_pre_prep_func:object,
                     style_classifier_class_label:list,
 
-                    scence_classifier_path:str,
-                    scence_classifier_pre_prep_func:object,
-                    scence_classifier_class_label:dict,         
+                    scene_classifier_path:str,
+                    scene_classifier_pre_prep_func:object,
+                    scene_classifier_class_label:dict,   
+                    scene_classifier_cat_label:dict,      
 
                     object_detection_model_path:str,
                     object_detection_model_weight_path:str,
@@ -55,9 +56,10 @@ class HashtagAnalyzer:
                                             style_classifier_pre_prep_func=style_classifier_pre_prep_func,
                                             style_classifier_class_label=style_classifier_class_label,
 
-                                            scence_classifier_path=scence_classifier_path,
-                                            scence_classifier_pre_prep_func=scence_classifier_pre_prep_func,
-                                            scence_classifier_class_label=scence_classifier_class_label,    
+                                            scene_classifier_path=scene_classifier_path,
+                                            scene_classifier_pre_prep_func=scene_classifier_pre_prep_func,
+                                            scene_classifier_class_label=scene_classifier_class_label,   
+                                            scene_classifier_cat_label=scene_classifier_cat_label, 
 
                                             object_detection_model_path=object_detection_model_path,
                                             object_detection_model_weight_path=object_detection_model_weight_path,

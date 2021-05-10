@@ -90,4 +90,31 @@ def calculate_association(dataset:list,
         
     return frequent_itemsets_df, association_rules_df
     
+def check_objects(baskets, 
+                    objects:list=None,
+                    count:bool=False):
 
+    if objects is None:
+        objects = list()
+    
+    result_df = pd.DataFrame()
+    result_df['basket'] = baskets
+
+    if count:
+        for obj in objects:
+            result_df[obj] = result_df['basket'].apply(lambda basket: basket.count(obj))
+    else:
+        for obj in objects:
+            result_df[obj] = result_df['basket'].apply(lambda basket: obj in basket)
+
+    result_df = result_df.drop(['basket'], axis=1)
+
+    return result_df
+
+def summary_check_objects(check_df):
+
+    no_of_basket = len(check_df)
+    summary_df = check_df.sum().to_frame(name='Number of Basket')
+    summary_df['Percent of Busket'] = (summary_df['Number of Basket']/no_of_basket) * 100
+
+    return summary_df

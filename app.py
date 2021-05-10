@@ -45,6 +45,14 @@ def convert_pattern(data_wo_path_list):
 
     return data_wo_path_list_of_tupple
 
+def convert_returned_args(args):
+
+    args_dict = args.to_dict(flat=False)
+    for arg in args_dict:
+        if len(args_dict[arg]) == 1:
+            args_dict[arg] = args_dict[arg][0]
+
+    return args_dict
 
 @app.route('/')
 def home():
@@ -53,7 +61,10 @@ def home():
 @app.route('/result', methods=['GET'])
 def result():
 
-    form_data = request.args.to_dict()
+    # form_data = request.args.to_dict()
+
+    form_data = convert_returned_args(request.args)
+
     hashtag = form_data["hashtag"]
     source = form_data["source"]
     limit = int(form_data["limit"])
@@ -130,9 +141,10 @@ if __name__ == "__main__":
                                     style_classifier_pre_prep_func = tensorflow.keras.applications.efficientnet.preprocess_input,
                                     style_classifier_class_label = class_label['style_classification_label'],
 
-                                    scence_classifier_path = 'model/scence_classification.h5',
-                                    scence_classifier_pre_prep_func = None,
-                                    scence_classifier_class_label = class_label['scence_classification_label'],      
+                                    scene_classifier_path = 'model/scene_classification.h5',
+                                    scene_classifier_pre_prep_func = None,
+                                    scene_classifier_class_label = class_label['scene_classification_label'],  
+                                    scene_classifier_cat_label = class_label['scene_classification_cat_label'],      
 
                                     object_detection_model_path = 'model/YOLO-COCO/yolov4.cfg',
                                     object_detection_model_weight_path = 'model/YOLO-COCO/yolov4.weights',

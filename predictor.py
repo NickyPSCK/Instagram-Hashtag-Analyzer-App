@@ -6,6 +6,8 @@
 # --------------------------------------------------------------------------------------------------------
 import glob
 import cv2
+import math
+
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -19,6 +21,7 @@ from keras_retinanet.utils.image import preprocess_image, resize_image
 from keras_retinanet.utils.visualization import draw_box, draw_caption
 from keras_retinanet.utils.colors import label_color
 
+# --------------------------------------------------------------------------------------------------------
 
 def load_images(path, color_mode:str='rgb', target_size:tuple=None):     
     '''
@@ -37,6 +40,34 @@ def load_images(path, color_mode:str='rgb', target_size:tuple=None):
         all_input_arr.append(input_arr)
 
     return all_input_arr, list_of_image_path
+
+def get_imgs_properties(images):
+    
+    def check_orientation(shape):
+        height, width, _ = shape
+        if height > width:
+            orientation = 'Landscape'
+        elif height < width:
+            orientation = 'Portrait'
+        else:
+            orientation = 'Square'
+        return orientation
+
+    def calculate_aspect_ratio(shape):
+        height, width, _ = shape
+        gcd = math.gcd(*shape[:-1])
+        return f'{int(width/gcd)}:{int(height/gcd)}'
+
+    df = pd.DataFrame()
+    df['Image'] = images
+    df['Shape'] = df['Image'].apply(lambda image: image.shape)
+    df['Width'] = df['Shape'].apply(lambda shape: shape[1])
+    df['Height'] = df['Shape'].apply(lambda shape: shape[0])    
+    df['Channel'] = df['Shape'].apply(lambda shape: shape[2])
+    df['Aspect Ratio'] = df['Shape'].apply(calculate_aspect_ratio)
+    df['Orientation'] = df['Shape'].apply(check_orientation)
+
+    return df.drop(['Image', 'Shape'], axis=1)
 
 # --------------------------------------------------------------------------------------------------------
 # ClassificationPredictor
@@ -90,10 +121,11 @@ class ClassificationPredictor:
         predictions = self.model.predict(X)
         return predictions
 
-    def decode_predictions(self, predictions, top=None):
-        
+    def decode_predictions(self, predictions, class_label:dict=None, top:int=None):
+
         decoded = list()
-        class_label = self.class_label.copy()
+        if class_label is None:
+            class_label = self.class_label.copy()
 
         if class_label is None:
             class_label = range(len(predictions[0]))
@@ -163,7 +195,10 @@ class RatinaNetPrediction(ClassificationPredictor):
 
         return predictions
 
-    def decode_prediction(self, prediction, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3):
+    def decode_prediction(self, prediction, class_label:dict=None, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3):
+        
+        if class_label is None:
+            class_label = self.class_label
 
         boxes, scores, class_ids = prediction
 
@@ -182,18 +217,21 @@ class RatinaNetPrediction(ClassificationPredictor):
         result_df['score'] = exist_scores
         result_df['box'] = exist_boxes
         result_df = result_df.astype({'class_id': 'str'})
-        result_df['class'] = result_df['class_id'].map(self.class_label)
+        result_df['class'] = result_df['class_id'].map(class_label)
         result_df = result_df.loc[qualify_index, :]
 
         return result_df
 
-    def decode_predictions(self, predictions, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3):
+    def decode_predictions(self, predictions, class_label:dict=None, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3):
         
+        if class_label is None:
+            class_label = self.class_label
+
         decoded = list()
 
         for i in range(len(predictions[0])):
             prediction = (predictions[0][i],  predictions[1][i],  predictions[2][i])
-            prediction_df = self.decode_prediction(prediction, confident_threshold, non_maxium_suppression_threshold)
+            prediction_df = self.decode_prediction(prediction, class_label, confident_threshold, non_maxium_suppression_threshold)
             selected_prediction_df = prediction_df[prediction_df['score'] > confident_threshold]['class']
             decoded.append(tuple(selected_prediction_df))
             

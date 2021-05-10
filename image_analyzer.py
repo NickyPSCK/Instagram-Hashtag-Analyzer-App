@@ -5,14 +5,15 @@
 # IMPORT REQUIRED PACKAGES
 # --------------------------------------------------------------------------------------------------------
 import glob
+import math
 import numpy as np
 import pandas as pd 
 import cv2
 import tensorflow
 from tensorflow.keras.preprocessing import image
 
-from predictor import load_images, ClassificationPredictor, RatinaNetPrediction, YOLOPrediction
-from association_analyzer import calculate_support, calculate_association
+from predictor import load_images, get_imgs_properties, ClassificationPredictor, RatinaNetPrediction, YOLOPrediction
+from association_analyzer import calculate_support, calculate_association, check_objects, summary_check_objects
 
 # --------------------------------------------------------------------------------------------------------
 # ImageAnalyzer
@@ -28,9 +29,10 @@ class ImageAnalyzer:
                     style_classifier_pre_prep_func:object,
                     style_classifier_class_label:dict,
 
-                    scence_classifier_path:str,
-                    scence_classifier_pre_prep_func:object,
-                    scence_classifier_class_label:dict,                    
+                    scene_classifier_path:str,
+                    scene_classifier_pre_prep_func:object,
+                    scene_classifier_class_label:dict,    
+                    scene_classifier_cat_label:dict,               
 
                     object_detection_model_path:str,
                     object_detection_model_weight_path:str,
@@ -50,24 +52,24 @@ class ImageAnalyzer:
         # Load all model
         self.__senti_cls = ClassificationPredictor( model_path=sentiment_classifier_path, 
                                                     preprocess_input=sentiment_classifier_pre_prep_func, 
-                                                    class_label=sentiment_classifier_class_label)
+                                                    class_label=None)
 
         self.__style_cls = ClassificationPredictor( model_path=style_classifier_path, 
                                                     preprocess_input=style_classifier_pre_prep_func, 
-                                                    class_label=style_classifier_class_label)
+                                                    class_label=None)
 
-        self.__scence_cls = ClassificationPredictor( model_path=scence_classifier_path, 
-                                                    preprocess_input=scence_classifier_pre_prep_func, 
-                                                    class_label=scence_classifier_class_label)
+        self.__scene_cls = ClassificationPredictor( model_path=scene_classifier_path, 
+                                                    preprocess_input=scene_classifier_pre_prep_func, 
+                                                    class_label=None)
         
                                     
         if object_detection_algorithm == 'yolo':
             self.__object_detection = YOLOPrediction(   model_path=object_detection_model_path,
                                                         model_weight_path=object_detection_model_weight_path,
-                                                        class_label=object_detection_class_label)
+                                                        class_label=None)
         elif object_detection_algorithm == 'ratinanet':
             self.__object_detection = RatinaNetPrediction(  model_path=object_detection_model_path, 
-                                                            class_label=object_detection_class_label)
+                                                            class_label=None)
 
         self.frequent_itemsets_algorithm = frequent_itemsets_algorithm
         self.min_support = min_support
@@ -75,6 +77,12 @@ class ImageAnalyzer:
         self.association_min_threshold = association_min_threshold
 
         self.__loaded_image = False
+
+        self.sentiment_classifier_class_label = sentiment_classifier_class_label
+        self.style_classifier_class_label = style_classifier_class_label
+        self.scene_classifier_class_label = scene_classifier_class_label
+        self.scene_classifier_cat_label = scene_classifier_cat_label
+        self.object_detection_class_label = object_detection_class_label
 
     def __check_load_image(class_method):
         def method_wrapper(self, *arg, **kwarg):
@@ -91,26 +99,43 @@ class ImageAnalyzer:
         self.__loaded_image = True
 
     @__check_load_image
+    def images_properties(self):
+        return get_imgs_properties(self.__X)
+
+    @__check_load_image
     def sentiment_classification(self):
         predictions = self.__senti_cls.predict(self.__X)
-        return self.__senti_cls.decode_predictions(predictions, top=None)
+        return self.__senti_cls.decode_predictions(predictions, 
+                                                    class_label=self.sentiment_classifier_class_label,
+                                                    top=None)
 
     @__check_load_image
     def style_classification(self):
         predictions = self.__style_cls.predict(self.__X)
-        return self.__style_cls.decode_predictions(predictions, top=None)
+        return self.__style_cls.decode_predictions(predictions, 
+                                                    class_label=self.style_classifier_class_label,
+                                                    top=None)
 
     @__check_load_image
-    def scence_classification(self):
-        predictions = self.__style_cls.predict(self.__X)
-        return self.__scence_cls.decode_predictions(predictions, top=None)
+    def scene_classification(self):
+        predictions = self.__scene_cls.predict(self.__X)
+
+        result_scene_df = self.__scene_cls.decode_predictions(predictions, 
+                                                                class_label=self.scene_classifier_class_label,
+                                                                top=None)
+
+        result_scene_cat_df = self.__scene_cls.decode_predictions(predictions, 
+                                                                class_label=self.scene_classifier_cat_label,
+                                                                top=None)                                                                
+        return result_scene_df, result_scene_cat_df
 
     @__check_load_image
-    def frequent_object_set(self):
-        
+    def object_detection(self):
         predictions = self.__object_detection.predict(self.__X)
+        return self.__object_detection.decode_predictions(predictions, 
+                                                                class_label=self.object_detection_class_label)
 
-        decoded_predictions = self.__object_detection.decode_predictions(predictions)
+    def frequent_object_set(self, decoded_predictions):
         
         single_support_df = calculate_support(decoded_predictions)
 
@@ -122,10 +147,21 @@ class ImageAnalyzer:
 
         return single_support_df, association_rules_df
 
-    def create_classification_result_df(self, classification_result):
+    def create_classification_result_df(self, classification_result, duplicate_class=True):
 
         classification_result_dict = list()
         for result in classification_result:
+
+            if duplicate_class:
+
+                dedup_result = dict()
+                for each_prob in result:
+                    if each_prob[0] in dedup_result:
+                        dedup_result[each_prob[0]] += each_prob[1]
+                    else:
+                        dedup_result[each_prob[0]] = each_prob[1]
+                result = dedup_result
+
             classification_result_dict.append(dict(result))
 
         result_df = pd.DataFrame(classification_result_dict)
@@ -149,19 +185,38 @@ class ImageAnalyzer:
         return idmax_result_df
 
     @__check_load_image
-    def analyze(self):
+    def analyze(self, tracked_objs:list=None):
+
+        if tracked_objs is None:
+            tracked_objs = list()
 
         sentiment_result = self.sentiment_classification()
         style_result = self.style_classification()
-        scence_result = self.scence_classification()
+        scene_result, scene_cat_result = self.scene_classification()
 
         # Raw classification result
         result_sentiment_df = self.create_classification_result_df(sentiment_result)
         result_style_df = self.create_classification_result_df(style_result)
-        result_scence_df = self.create_classification_result_df(scence_result)
+        result_scene_df = self.create_classification_result_df(scene_result)
+        result_scene_cat_df = self.create_classification_result_df(scene_cat_result)
 
         # try:
-        single_support_df, association_rules_df = self.frequent_object_set()
+
+        object_detection_decoded_predictions = self.object_detection()
+        single_support_df, association_rules_df = self.frequent_object_set(object_detection_decoded_predictions)
+        
+        result_check_objects = check_objects(object_detection_decoded_predictions, objects=tracked_objs, count=False)
+        result_summary_check_objects = summary_check_objects(result_check_objects)
+        result_check_objects.insert(loc=0, column='path', value=self.list_of_image_path)
+
+        
+
+        # tracked_objs
+        # result_check_objects = result_check_objects[['path']]
+
+        
+
+
         # except:
         #     single_support_df = pd.DataFrame(columns=['Object', 'Number of Object', 'Number of Image', 'Support: Object', 'Support: Image'])
         #     association_rules_df = pd.DataFrame(columns=['Antecedents', 'Consequents', 'Support', 'Confidence', 'Lift'])
@@ -170,11 +225,19 @@ class ImageAnalyzer:
         return  {
                     'Raw Sentiment Analysis':result_sentiment_df, 
                     'Raw Style Analysis': result_style_df, 
-                    'Raw Scence Analysis': result_scence_df, 
+                    'Raw Scene Analysis': result_scene_df, 
+                    'Raw Scene Cat Analysis': result_scene_cat_df,
+
+                    'Raw Tracked Objects Analysis':result_check_objects,
+
+                    'Summary Images Properties': self.images_properties(),
 
                     'Summary Sentiment Analysis': self.summary_classification_result(result_sentiment_df),
                     'Summary Style Analysis': self.summary_classification_result(result_style_df),
-                    'Summary Scence Analysis': self.summary_classification_result(result_scence_df),
+                    'Summary Scene Analysis': self.summary_classification_result(result_scene_df),
+                    'Summary Scene Cat Analysis': self.summary_classification_result(result_scene_cat_df),
+                    
+                    'Summary Tracked Objects Analysis': result_summary_check_objects,
 
                     'Support': single_support_df, 
                     'Association Rules': association_rules_df,
