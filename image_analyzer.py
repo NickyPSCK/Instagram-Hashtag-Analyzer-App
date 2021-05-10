@@ -209,13 +209,8 @@ class ImageAnalyzer:
         result_summary_check_objects = summary_check_objects(result_check_objects)
         result_check_objects.insert(loc=0, column='path', value=self.list_of_image_path)
 
-        
-
         # tracked_objs
         # result_check_objects = result_check_objects[['path']]
-
-        
-
 
         # except:
         #     single_support_df = pd.DataFrame(columns=['Object', 'Number of Object', 'Number of Image', 'Support: Object', 'Support: Image'])

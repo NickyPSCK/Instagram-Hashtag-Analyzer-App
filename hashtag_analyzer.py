@@ -75,7 +75,8 @@ class HashtagAnalyzer:
         self.downloaded_path_ig = 'static/downloads/hashtag/instagram/'
         self.downloaded_path_flickr = 'static/downloads/hashtag/flickr/'
 
-    def analyze_ig(self, hashtag, limit=5):
+    def analyze_ig(self, hashtag, tracked_objs:list=None, limit:int=5):
+
         # Download Image
         prefix = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_UTC")
 
@@ -88,12 +89,12 @@ class HashtagAnalyzer:
         target_result_dir = f'{result_dir}*.jpg'
 
         self.__analyzer.load_image(target_result_dir)
-        analysis_result = self.__analyzer.analyze()
+        analysis_result = self.__analyzer.analyze(tracked_objs=tracked_objs)
         print('Analyzed')
 
         return analysis_result
 
-    def analyze_flickr(self, hashtag, sort_by='relevance', limit=5):
+    def analyze_flickr(self, hashtag, sort_by='relevance', tracked_objs:list=None, limit:int=5):
         # Download Image
         prefix = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_UTC")
 
@@ -106,19 +107,19 @@ class HashtagAnalyzer:
         target_result_dir = f'{result_dir}*.jpg'
 
         self.__analyzer.load_image(target_result_dir)
-        analysis_result = self.__analyzer.analyze()
+        analysis_result = self.__analyzer.analyze(tracked_objs=tracked_objs)
         print('Analyzed')
 
         return analysis_result
 
-    def analyze_demo(self, demo_id=1):
+    def analyze_demo(self, demo_id=1, tracked_objs:list=None):
 
         result_dir = f'static/downloads/hashtag/demo/demo{demo_id}/'
         target_result_dir = f'{result_dir}*.jpg'
 
         print('Analyzing..')
         self.__analyzer.load_image(target_result_dir)
-        analysis_result = self.__analyzer.analyze()
+        analysis_result = self.__analyzer.analyze(tracked_objs=tracked_objs)
         print('Analyzed')
 
         return analysis_result

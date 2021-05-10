@@ -45,45 +45,46 @@ def convert_pattern(data_wo_path_list):
 
     return data_wo_path_list_of_tupple
 
-def convert_returned_args(args):
+# def convert_returned_args(args):
 
-    args_dict = args.to_dict(flat=False)
-    for arg in args_dict:
-        if len(args_dict[arg]) == 1:
-            args_dict[arg] = args_dict[arg][0]
+#     args_dict = args.to_dict(flat=False)
+#     for arg in args_dict:
+#         if len(args_dict[arg]) == 1:
+#             args_dict[arg] = args_dict[arg][0]
 
-    return args_dict
+#     return args_dict
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('home.html', obj_dict=class_label['object_detection_label'])
 
 @app.route('/result', methods=['GET'])
 def result():
 
-    # form_data = request.args.to_dict()
+    form_data = request.args.to_dict(flat=False)
 
-    form_data = convert_returned_args(request.args)
+    # form_data = convert_returned_args(request.args)
 
-    hashtag = form_data["hashtag"]
-    source = form_data["source"]
-    limit = int(form_data["limit"])
+    hashtag = form_data['hashtag'][0]
+    source = form_data['source'][0]
+    limit = int(form_data['limit'][0])
+    tracked_objs = form_data.get('objs', list())
 
     if source == 'Flickr':
-        analysis_result = analyzer.analyze_flickr(hashtag=hashtag, limit=limit)
+        analysis_result = analyzer.analyze_flickr(hashtag=hashtag, limit=limit, tracked_objs=tracked_objs)
     elif source == 'Instagram':
-        analysis_result = analyzer.analyze_ig(hashtag=hashtag, limit=limit)
+        analysis_result = analyzer.analyze_ig(hashtag=hashtag, limit=limit, tracked_objs=tracked_objs)
     elif source == 'Demo1':
         hashtag = 'DEMO1'
-        analysis_result = analyzer.analyze_demo(demo_id=1)
+        analysis_result = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs)
     elif source == 'Demo2':
         hashtag = 'DEMO2'
-        analysis_result = analyzer.analyze_demo(demo_id=2)
+        analysis_result = analyzer.analyze_demo(demo_id=2, tracked_objs=tracked_objs)
     elif source == 'Demo3':
         hashtag = 'DEMO3'
-        analysis_result = analyzer.analyze_demo(demo_id=3)
+        analysis_result = analyzer.analyze_demo(demo_id=3, tracked_objs=tracked_objs)
     else:
-        analysis_result = analyzer.analyze_demo(demo_id=1)
+        analysis_result = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs)
 
     summary_result_tables = dict()
     raw_result_tables = list()

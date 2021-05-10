@@ -117,4 +117,7 @@ def summary_check_objects(check_df):
     summary_df = check_df.sum().to_frame(name='Number of Basket')
     summary_df['Percent of Busket'] = (summary_df['Number of Basket']/no_of_basket) * 100
 
+    summary_df.insert(loc=0, column='Object', value=summary_df.index)
+    summary_df = summary_df.reset_index(drop=True)
+
     return summary_df

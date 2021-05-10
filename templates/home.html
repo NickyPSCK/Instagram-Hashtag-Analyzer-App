@@ -80,86 +80,17 @@
 
               <div class="row">
                 <select  class="select" multiple name="objs">
-                  <option value="0" selected>person</option>
-                  <option value="1">bicycle</option>
-                  <option value="2">car</option>
-                  <option value="3">motorcycle</option>
-                  <option value="4">airplane</option>
-                  <option value="5">bus</option>
-                  <option value="6">train</option>
-                  <option value="7">truck</option>
-                  <option value="8">boat</option>
-                  <option value="9">traffic light</option>
-                  <option value="10">fire hydrant</option>
-                  <option value="11">stop sign</option>
-                  <option value="12">parking meter</option>
-                  <option value="13">bench</option>
-                  <option value="14">bird</option>
-                  <option value="15">cat</option>
-                  <option value="16">dog</option>
-                  <option value="17">horse</option>
-                  <option value="18">sheep</option>
-                  <option value="19">cow</option>
-                  <option value="20">elephant</option>
-                  <option value="21">bear</option>
-                  <option value="22">zebra</option>
-                  <option value="23">giraffe</option>
-                  <option value="24">backpack</option>
-                  <option value="25">umbrella</option>
-                  <option value="26">handbag</option>
-                  <option value="27">tie</option>
-                  <option value="28">suitcase</option>
-                  <option value="29">frisbee</option>
-                  <option value="30">skis</option>
-                  <option value="31">snowboard</option>
-                  <option value="32">sports ball</option>
-                  <option value="33">kite</option>
-                  <option value="34">baseball bat</option>
-                  <option value="35">baseball glove</option>
-                  <option value="36">skateboard</option>
-                  <option value="37">surfboard</option>
-                  <option value="38">tennis racket</option>
-                  <option value="39">bottle</option>
-                  <option value="40">wine glass</option>
-                  <option value="41">cup</option>
-                  <option value="42">fork</option>
-                  <option value="43">knife</option>
-                  <option value="44">spoon</option>
-                  <option value="45">bowl</option>
-                  <option value="46">banana</option>
-                  <option value="47">apple</option>
-                  <option value="48">sandwich</option>
-                  <option value="49">orange</option>
-                  <option value="50">broccoli</option>
-                  <option value="51">carrot</option>
-                  <option value="52">hot dog</option>
-                  <option value="53">pizza</option>
-                  <option value="54">donut</option>
-                  <option value="55">cake</option>
-                  <option value="56">chair</option>
-                  <option value="57">couch</option>
-                  <option value="58">potted plant</option>
-                  <option value="59">bed</option>
-                  <option value="60">dining table</option>
-                  <option value="61">toilet</option>
-                  <option value="62">tv</option>
-                  <option value="63">laptop</option>
-                  <option value="64">mouse</option>
-                  <option value="65">remote</option>
-                  <option value="66">keyboard</option>
-                  <option value="67">cell phone</option>
-                  <option value="68">microwave</option>
-                  <option value="69">oven</option>
-                  <option value="70">toaster</option>
-                  <option value="71">sink</option>
-                  <option value="72">refrigerator</option>
-                  <option value="73">book</option>
-                  <option value="74">clock</option>
-                  <option value="75">vase</option>
-                  <option value="76">scissors</option>
-                  <option value="77">teddy bear</option>
-                  <option value="78">hair drier</option>
-                  <option value="79">toothbrush</option>
+
+                  {% for i in obj_dict %}
+                    {% if obj_dict[i]!="person" %}
+                      <option value={{obj_dict[i]}}>{{obj_dict[i]}}</option>
+                    {% else %}
+                      <option value={{obj_dict[i]}} selected>{{obj_dict[i]}}</option>
+
+                    {% endif %}
+                  {% endfor %}
+
+                  <!-- <option value="0" selected>person</option>-->
 
                 </select>
 
