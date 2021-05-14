@@ -44,7 +44,11 @@ class HashtagAnalyzer:
                     
                     ):
         
-        self.__ig_scraper = InstagramScraper(user=user, password=password)
+        self.__user = user
+        self.__password = password
+        self.__ig_login_status = False
+
+        
         self.__flickr_scraper = FlickrScraper()
 
         self.__analyzer = ImageAnalyzer(
@@ -77,6 +81,10 @@ class HashtagAnalyzer:
 
     def analyze_ig(self, hashtag, tracked_objs:list=None, limit:int=5):
 
+        if self.__ig_login_status == False:
+            self.__ig_scraper = InstagramScraper(user=self.__user, password=self.__password)
+            self.__ig_login_status = True
+        
         # Download Image
         prefix = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_UTC")
 

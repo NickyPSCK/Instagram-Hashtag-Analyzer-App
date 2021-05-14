@@ -56,7 +56,8 @@ def convert_pattern(data_wo_path_list):
 
 @app.route('/')
 def home():
-    return render_template('home.html', obj_dict=class_label['object_detection_label'])
+    theme = 's008'
+    return render_template('home.html', theme=theme, obj_dict=class_label['object_detection_label'])
 
 @app.route('/result', methods=['GET'])
 def result():
@@ -128,6 +129,8 @@ if __name__ == "__main__":
     user = cl.get('login', 'user', data_type=str)
     password = cl.get('login', 'password', data_type=str)
 
+    theme = cl.get('web', 'theme', data_type=str)
+
     with open('config/class.json', 'r') as f:
         class_label = json.loads(f.read())
 
@@ -162,3 +165,10 @@ if __name__ == "__main__":
 
     
     app.run(debug = True, port = 5000)
+
+
+
+
+    # Ref Html
+
+    # https://uicookies.com/bootstrap-search-box/

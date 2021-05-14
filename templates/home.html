@@ -5,16 +5,26 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="author" content="colorlib.com">
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet" />
-    <link href="{{ url_for('static', filename='css/main.css')}}" rel="stylesheet" />
-    <!-- <link href="{{ url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet" /> -->
+
+    <link href= "static/theme/{{theme}}/css/main.css" rel="stylesheet" />
 
     <title>SMH: Social Media Hashtag Analyzer</title>
 
   </head>
   <body>
-    <div class="s008">
-      
 
+  <style>
+
+    .{{theme}} {
+        background-image: url("static/images/{{theme}}.jpg");
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+    } 
+
+  </style>
+  
+    <div class={{theme}}>
       <form action="/result" target="_blank" method="GET">
         <legend style="margin-bottom: 15px; color:white; font-size:40px; font-weight: bold">SMH Analyzer</legend>
         <fieldset>
@@ -107,7 +117,7 @@
 
       </form>
     </div>
-    <script src="{{ url_for('static', filename='js/extention/choices.js')}}"></script>
+    <script src="static/theme/{{theme}}/js/extention/choices.js"></script>
 
     <script>
       const customSelects = document.querySelectorAll("select");
