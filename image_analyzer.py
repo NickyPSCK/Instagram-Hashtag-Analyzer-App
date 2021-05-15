@@ -100,7 +100,13 @@ class ImageAnalyzer:
 
     @__check_load_image
     def images_properties(self):
-        return get_imgs_properties(self.__X)
+        result_df = get_imgs_properties(self.__X)
+        result_df['path'] = self.list_of_image_path
+        path = result_df['path']
+        result_df = result_df.drop(labels=['path'], axis=1)
+        result_df.insert(0, 'path', path)
+
+        return result_df
 
     @__check_load_image
     def sentiment_classification(self):
@@ -175,14 +181,14 @@ class ImageAnalyzer:
         return result_df
 
     def summary_classification_result(self, result_df):
-        idmax_result_df = result_df.iloc[:,1:].idxmax(axis="columns")
-        idmax_result_df = idmax_result_df.value_counts().to_frame()
+        predicted_class = result_df.iloc[:,1:].idxmax(axis="columns")
+        idmax_result_df = predicted_class.value_counts().to_frame()
         idmax_result_df.columns = ['Number of Image']
         idmax_result_df['Percentage of Image'] = 100*idmax_result_df['Number of Image']/result_df.count()
         idmax_result_df.sort_values(by='Number of Image', ascending=False, inplace = True)
         idmax_result_df = idmax_result_df.reset_index()
         idmax_result_df.columns = ['Class', 'Number of Image', 'Percentage of Image']
-        return idmax_result_df
+        return predicted_class, idmax_result_df
 
     @__check_load_image
     def analyze(self, tracked_objs:list=None):
@@ -199,6 +205,11 @@ class ImageAnalyzer:
         result_style_df = self.create_classification_result_df(style_result)
         result_scene_df = self.create_classification_result_df(scene_result)
         result_scene_cat_df = self.create_classification_result_df(scene_cat_result)
+
+        predicted_sentiment_class = result_sentiment_df.iloc[:,1:].idxmax(axis="columns")
+        predicted_style_class = result_style_df.iloc[:,1:].idxmax(axis="columns")
+        predicted_scence_class = result_scene_df.iloc[:,1:].idxmax(axis="columns")
+        predicted_scene_cat_class = result_scene_cat_df.iloc[:,1:].idxmax(axis="columns")
 
         # try:
 
@@ -217,20 +228,27 @@ class ImageAnalyzer:
         #     association_rules_df = pd.DataFrame(columns=['Antecedents', 'Consequents', 'Support', 'Confidence', 'Lift'])
 
 
+
+
+
+        # Single Image View
+        single_images_view =  self.images_properties()
+        single_images_view['sentiment'] = predicted_sentiment_class
+        single_images_view['style'] = predicted_style_class
+        single_images_view['scence'] = predicted_scence_class
+        single_images_view['scene_cat'] = predicted_scene_cat_class
+        single_images_view['detected_object'] = object_detection_decoded_predictions
+
+
         return  {
-                    'Raw Sentiment Analysis':result_sentiment_df, 
-                    'Raw Style Analysis': result_style_df, 
-                    'Raw Scene Analysis': result_scene_df, 
-                    'Raw Scene Cat Analysis': result_scene_cat_df,
+                    'Single Image View': single_images_view,            
 
-                    'Raw Tracked Objects Analysis':result_check_objects,
+                    'Prob Sentiment Analysis':result_sentiment_df, 
+                    'Prob Style Analysis': result_style_df, 
+                    'Prob Scene Analysis': result_scene_df, 
+                    'Prob Scene Cat Analysis': result_scene_cat_df,
 
-                    'Summary Images Properties': self.images_properties(),
-
-                    'Summary Sentiment Analysis': self.summary_classification_result(result_sentiment_df),
-                    'Summary Style Analysis': self.summary_classification_result(result_style_df),
-                    'Summary Scene Analysis': self.summary_classification_result(result_scene_df),
-                    'Summary Scene Cat Analysis': self.summary_classification_result(result_scene_cat_df),
+                    'Prob Tracked Objects Analysis':result_check_objects,
                     
                     'Summary Tracked Objects Analysis': result_summary_check_objects,
 

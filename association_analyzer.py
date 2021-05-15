@@ -89,7 +89,21 @@ def calculate_association(dataset:list,
         association_rules_df = pd.DataFrame(columns=col_name_association_rules_df)
         
     return frequent_itemsets_df, association_rules_df
-    
+
+def check_objects_from_df(result_df, basket_col:str='basket', objects:list=None, count:bool=False, prefix:str=''):
+    result_df = result_df[[basket_col]].copy()
+
+    if count:
+        for obj in objects:
+            result_df[prefix+obj] = result_df[basket_col].apply(lambda basket: basket.count(obj))
+    else:
+        for obj in objects:
+            result_df[prefix+obj] = result_df[basket_col].apply(lambda basket: obj in basket)
+
+    result_df = result_df.drop([basket_col], axis=1)
+
+    return result_df
+
 def check_objects(baskets, 
                     objects:list=None,
                     count:bool=False):
@@ -100,22 +114,13 @@ def check_objects(baskets,
     result_df = pd.DataFrame()
     result_df['basket'] = baskets
 
-    if count:
-        for obj in objects:
-            result_df[obj] = result_df['basket'].apply(lambda basket: basket.count(obj))
-    else:
-        for obj in objects:
-            result_df[obj] = result_df['basket'].apply(lambda basket: obj in basket)
-
-    result_df = result_df.drop(['basket'], axis=1)
-
-    return result_df
+    return check_objects_from_df(result_df, basket_col='basket', objects=objects, count=count)
 
 def summary_check_objects(check_df):
 
     no_of_basket = len(check_df)
-    summary_df = check_df.sum().to_frame(name='Number of Basket')
-    summary_df['Percent of Busket'] = (summary_df['Number of Basket']/no_of_basket) * 100
+    summary_df = check_df.sum().to_frame(name='Count')
+    summary_df['%'] = (summary_df['Count']/no_of_basket) * 100
 
     summary_df.insert(loc=0, column='Object', value=summary_df.index)
     summary_df = summary_df.reset_index(drop=True)

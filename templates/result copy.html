@@ -1,0 +1,115 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="author" content="colorlib.com">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet" />
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet" />
+    <title>SMH: Analysis Report</title>
+
+  </head>
+  <body>
+
+  <style>
+    body {
+      background-image: url("{{ url_for('static', filename='images/background.jpg')}}");
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-size: cover;
+    }
+  </style>
+
+    <!-- <div class="container-fluid bg-secondary text-white mb-2"> -->
+      
+
+      <!-- <div class="table-responsive"> -->
+      <!-- <div class="container bg-light" -->
+      <div class="container py-4">
+        <br/>
+        <h1><b>Analysis Report on {{source}} for #{{hashtag}}</b></h1>
+        <br/>
+        {% if show_result %}
+
+          {% for result_table in result_tables %}
+              <h2>Result of {{result_table['name']}}</h2>
+
+              <table class="table table-striped">
+                <thead class="thead-dark">
+                  <tr>
+                      {% for col in result_table['head'] %}
+                          <th scope="col">{{col}}</th>
+                      {% endfor %}
+                  </tr>
+                </thead>
+                  <tbody>
+                      {% for row_data in result_table['data'] %}
+                      <tr>
+
+                          {% for col_data in row_data %}
+                              <td>{{ col_data }}</td>
+                          {% endfor %}
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+          
+              </table>
+          {% endfor %}
+          
+          <div class="p-5 mb-4 bg-light rounded-3"> 
+            <h2 class="display-5 fw-bold">Details</h2>
+
+            <table class="table table-striped ">
+              <thead class="thead-dark">
+                <tr>
+                      <th scope="col" style="width:50%">Image</th>
+                      <th scope="col" style="width:25%">Style Probability</th>
+                      <th scope="col" style="width:25%">Sentiment Probability</th>
+                      <th scope="col" style="width:25%">Scence Probability</th>
+                </tr>
+              </thead>
+                <tbody>
+                    {% for row_data in detail_result_table %}
+                    <tr>
+                        <td>
+                          <div class="text-center">
+                          <img src="{{ url_for('static', filename=row_data[0])}}" alt="..." class="img-thumbnail" width= 90%>
+                          </div>
+                        </td>
+                        <td>
+                            <p>
+                            {% for col_data in row_data[1] %}
+                              {{ col_data[0] }}: {{ col_data[1] }} <br/>
+                            {% endfor %}
+                            </p>
+                        </td>
+                        <td>
+                          <p>
+                          {% for col_data in row_data[2] %}
+                            {{ col_data[0] }}: {{ col_data[1] }} <br/>
+                          {% endfor %}
+                          </p>
+                      </td>                              
+                      <td>
+                        <p>
+                        {% for col_data in row_data[3] %}
+                          {{ col_data[0] }}: {{ col_data[1] }} <br/>
+                        {% endfor %}
+                        </p>
+                    </td>                             
+                    </tr>
+                    {% endfor %}
+                </tbody>
+        
+            </table>
+          </div>
+
+        {% endif %}
+      </div>  
+
+    <!-- </div> -->
+    <script src="{{ url_for('static', filename='js/extention/choices.js')}}"></script>
+
+    <div class="bg"></div>
+  </body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+</html>

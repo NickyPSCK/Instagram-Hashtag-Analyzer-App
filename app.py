@@ -12,7 +12,6 @@ from flask import Flask, request, render_template
 
 from util.init_sys import InitSystem
 from util.utility import round_df
-# from util.config_loader import ConfigLoader
 
 from hashtag_analyzer import HashtagAnalyzer
 
@@ -27,7 +26,6 @@ def process_result(**dfs):
     for df in dfs:
         table_head = list(dfs[df].columns)
         table_data = dfs[df].to_records(index=False)
-
         name = ' '.join(df.split('_'))
         df_list.append({'name':name, 'head':table_head, 'data':table_data})
     return df_list
@@ -64,8 +62,6 @@ def result():
 
     form_data = request.args.to_dict(flat=False)
 
-    # form_data = convert_returned_args(request.args)
-
     hashtag = form_data['hashtag'][0]
     source = form_data['source'][0]
     limit = int(form_data['limit'][0])
@@ -87,36 +83,61 @@ def result():
     else:
         analysis_result = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs)
 
-    summary_result_tables = dict()
+    
     raw_result_tables = list()
 
     for table_name in analysis_result:
         if 'image_path' not in table_name.lower():
-            if 'raw' not in table_name.lower():
-                summary_result_tables[table_name] = round_df(df=analysis_result[table_name], decimals=2)
-
-            else:
+            if 'prob' in table_name.lower():
                 raw_df = analysis_result[table_name].drop('path', axis=1)
                 raw_list = raw_df.to_dict('records')
                 raw_list_of_tupple = convert_pattern(raw_list)
                 raw_result_tables.append(raw_list_of_tupple)
 
-    img_path_list = analysis_result['image_path']
+    decimals = 2
 
+    # -------------------------------------------------------------------------------------------
+    # RESULT PART
+    # -------------------------------------------------------------------------------------------
+
+    # SECTION 1
+    section_1_tables = dict()
+    section_1_tables['Images Properties'] = round_df(df=analysis_result['Summary Images Properties'], decimals=decimals)
+    section_1_tables = process_result(**section_1_tables)
+
+    # SECTION 2
+    section_2_tables = dict()
+    section_2_tables['Summary Sentiment Analysis'] = round_df(df=analysis_result['Summary Sentiment Analysis'], decimals=decimals)
+    section_2_tables['Summary Style Analysis'] = round_df(df=analysis_result['Summary Style Analysis'], decimals=decimals)
+    section_2_tables['Summary Scene Analysis'] = round_df(df=analysis_result['Summary Scene Analysis'], decimals=decimals)
+    section_2_tables['Summary Scene Cat Analysis'] = round_df(df=analysis_result['Summary Scene Cat Analysis'], decimals=decimals)
+    section_2_tables['Summary Tracked Objects Analysis'] = round_df(df=analysis_result['Summary Tracked Objects Analysis'], decimals=decimals)
+    section_2_tables = process_result(**section_2_tables)
+
+    # SECTION 3
+    section_3_tables = dict()
+    section_3_tables['Support'] = round_df(df=analysis_result['Support'], decimals=decimals)
+    section_3_tables['Association Rules'] = round_df(df=analysis_result['Association Rules'], decimals=decimals)
+    section_3_tables = process_result(**section_3_tables)
+
+    # -------------------------------------------------------------------------------------------
+
+    img_path_list = analysis_result['image_path']
     processed_img_path_list = list()
     for img_path in img_path_list:
         img_path = '/'.join(img_path.split('/')[1:])
         processed_img_path_list.append(img_path)
 
-    result_tables = process_result(**summary_result_tables)
     detail_result_table = list(zip(processed_img_path_list, *raw_result_tables))
 
-    # -------------------------------------------------------------------------------------------
+    
 
     return render_template('result.html',
                             hashtag = hashtag,
                             source  = source,
-                            result_tables = result_tables,
+                            section_1_tables = section_1_tables,
+                            section_2_tables = section_2_tables,
+                            section_3_tables = section_3_tables,
                             detail_result_table = detail_result_table,
                             show_result = True)
 
