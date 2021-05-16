@@ -59,15 +59,15 @@ def get_imgs_properties(images):
         return f'{int(width/gcd)}:{int(height/gcd)}'
 
     df = pd.DataFrame()
-    df['Image'] = images
-    df['Shape'] = df['Image'].apply(lambda image: image.shape)
-    df['Width'] = df['Shape'].apply(lambda shape: shape[1])
-    df['Height'] = df['Shape'].apply(lambda shape: shape[0])    
-    df['Channel'] = df['Shape'].apply(lambda shape: shape[2])
-    df['Aspect Ratio'] = df['Shape'].apply(calculate_aspect_ratio)
-    df['Orientation'] = df['Shape'].apply(check_orientation)
+    df['image'] = images
+    df['shape'] = df['image'].apply(lambda image: image.shape)
+    df['width'] = df['shape'].apply(lambda shape: shape[1])
+    df['height'] = df['shape'].apply(lambda shape: shape[0])    
+    df['channel'] = df['shape'].apply(lambda shape: shape[2])
+    df['aspect ratio'] = df['shape'].apply(calculate_aspect_ratio)
+    df['orientation'] = df['shape'].apply(check_orientation)
 
-    return df.drop(['Image', 'Shape'], axis=1)
+    return df.drop(['image', 'shape'], axis=1)
 
 # --------------------------------------------------------------------------------------------------------
 # ClassificationPredictor

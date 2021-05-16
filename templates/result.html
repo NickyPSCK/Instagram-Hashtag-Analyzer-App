@@ -20,54 +20,90 @@
     }
   </style>
 
-      <div class="container py-4">
-        <header class="pb-3 mb-4 border-bottom">
+      <main class="container">
+        <header class="my-3 p-3 bg-light bg-body rounded shadow-sm">
+
             <span class="fs-4">
               <br/>
-              <h1><b>Analysis Report on {{source}} for #{{hashtag}}</b></h1>
+              <h2 class="border-bottom pb-2 mb-0"><b>Analysis Report on {{source}} for #{{hashtag}}</b></h2>
               <br/>
             </span>
-          </a>
         </header>
-    
+
         {% if show_result %}
 
         <!-- SECTION 1 -->
-        
-          {% for table in section_1_tables %}
-            <div class="p-2 mb-4 bg-light rounded-3"> 
-              <h2>{{table['name']}}</h2>
-
-              <table class="table table-striped">
-                <thead class="thead-dark">
-                  <tr>
-                      {% for col in table['head'] %}
-                          <th scope="col">{{col}}</th>
-                      {% endfor %}
-                  </tr>
-                </thead>
-                  <tbody>
-                      {% for row_data in table['data'] %}
+        <div class="my-3 p-3 bg-light bg-body rounded shadow-sm">
+          <h4 class="border-bottom pb-2 mb-0">Image Demographic</h4>
+          <div class="row align-items-md-stretch"> 
+            <div class="col-md-6">
+              {% for table in section_1_tables[::2] %}
+                <div class="p-2 mb-4 bg-light rounded-3"> 
+                  <h5 class="border-bottom pb-2 mb-0">{{table['name']}}</h5>
+                  <table class="table table-striped">
+                    <thead class="thead-dark">
                       <tr>
-
-                          {% for col_data in row_data %}
-                              <td>{{ col_data }}</td>
+                          {% for col in table['head'] %}
+                              <th scope="col">{{col}}</th>
                           {% endfor %}
                       </tr>
-                      {% endfor %}
-                  </tbody>
-          
-              </table>
-            </div>
-          {% endfor %}
+                    </thead>
+                      <tbody>
+                          {% for row_data in table['data'] %}
+                          <tr>
 
+                              {% for col_data in row_data %}
+                                  <td>{{ col_data }}</td>
+                              {% endfor %}
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+              
+                  </table>
+                </div>
+              {% endfor %}          
+            </div>
+
+            <div class="col-md-6">
+              {% for table in section_1_tables[1::2] %}
+                <div class="p-2 mb-4 bg-light rounded-3"> 
+                  <h5 class="border-bottom pb-2 mb-0">{{table['name']}}</h5>
+
+                  <table class="table table-striped">
+                    <thead class="thead-dark">
+                      <tr>
+                          {% for col in table['head'] %}
+                              <th scope="col">{{col}}</th>
+                          {% endfor %}
+                      </tr>
+                    </thead>
+                      <tbody>
+                          {% for row_data in table['data'] %}
+                          <tr>
+
+                              {% for col_data in row_data %}
+                                  <td>{{ col_data }}</td>
+                              {% endfor %}
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+              
+                  </table>
+                </div>
+              {% endfor %}          
+            </div>
+
+          </div>
+        </div>
         <!-- SECTION 2 -->
+        <div class="my-3 p-3 bg-light bg-body rounded shadow-sm">
+          <h4 class="border-bottom pb-2 mb-0">Image Categories</h4>
           <div class="row align-items-md-stretch"> 
 
             <div class="col-md-6">
               {% for table in section_2_tables[::2] %}
                 <div class="p-2 mb-4 bg-light rounded-3"> 
-                  <h2>{{table['name']}}</h2>
+                  <h5 class="border-bottom pb-2 mb-0">{{table['name']}}</h5>
 
                   <table class="table table-striped">
                     <thead class="thead-dark">
@@ -96,7 +132,7 @@
             <div class="col-md-6">
               {% for table in section_2_tables[1::2] %}
                 <div class="p-2 mb-4 bg-light rounded-3"> 
-                  <h2>{{table['name']}}</h2>
+                  <h5 class="border-bottom pb-2 mb-0">{{table['name']}}</h5>
 
                   <table class="table table-striped">
                     <thead class="thead-dark">
@@ -123,36 +159,76 @@
             </div>
 
           </div>
-        <!-- SECTION 3 -->
+        </div>
+
+
+
+        <!-- SECTION 4 -->
+        <div class="my-3 p-3 bg-light bg-body rounded shadow-sm">
+          <h4 class="border-bottom pb-2 mb-0">Association Analysis</h4>
+          {% for table in section_4_tables %}
+          <div class="p-2 mb-4 bg-light rounded-3"> 
+            <h5 class="border-bottom pb-2 mb-0">{{table['name']}}</h5>
+
+            <table class="table table-striped">
+              <thead class="thead-dark">
+                <tr>
+                    {% for col in table['head'] %}
+                        <th scope="col">{{col}}</th>
+                    {% endfor %}
+                </tr>
+              </thead>
+                <tbody>
+                    {% for row_data in table['data'] %}
+                    <tr>
+
+                        {% for col_data in row_data %}
+                            <td>{{ col_data }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
         
-        {% for table in section_3_tables %}
-        <div class="p-2 mb-4 bg-light rounded-3"> 
-          <h2>{{table['name']}}</h2>
+            </table>
+          </div>
+          {% endfor %}          
+        </div>
 
-          <table class="table table-striped">
-            <thead class="thead-dark">
-              <tr>
-                  {% for col in table['head'] %}
-                      <th scope="col">{{col}}</th>
-                  {% endfor %}
-              </tr>
-            </thead>
-              <tbody>
-                  {% for row_data in table['data'] %}
-                  <tr>
 
-                      {% for col_data in row_data %}
+        <!-- SECTION 5 -->
+        <div class="my-3 p-3 bg-light bg-body rounded shadow-sm">
+          <h4 class="border-bottom pb-2 mb-0">Single View</h4>
+          {% for table in section_5_tables %}
+          <div class="p-2 mb-4 bg-light rounded-3 text-nowrap overflow-auto"> 
+            <h2>{{table['name']}}</h2>
+
+            <table class="table table-striped table-responsive-md">
+              <thead class="thead-dark">
+                <tr>
+                    {% for col in table['head'] %}
+                        <th scope="col" style="width:100%">{{col}}</th>
+                    {% endfor %}
+                </tr>
+              </thead>
+                <tbody>
+                    {% for row_data in table['data'] %}
+                    
+                    <tr> 
+                      <td> 
+                        <figure class="figure" >
+                          <img src="{{ row_data[0] }}" alt="..." class="img-thumbnail" >
+                        </figure>
+                      </td>
+                      {% for col_data in (row_data | list)[1:] %}
                           <td>{{ col_data }}</td>
                       {% endfor %}
-                  </tr>
-                  {% endfor %}
-              </tbody>
-      
-          </table>
-        </div>
-      {% endfor %}          
-
-
+                    </tr>
+                    {% endfor %}
+                </tbody>
+        
+            </table>
+          </div>
+          {% endfor %}          
 
 
           <div class="p-5 mb-4 bg-light rounded-3"> 
@@ -204,7 +280,7 @@
           </div>
 
         {% endif %}
-      </div>  
+        </main>  
 
     <!-- </div> -->
     <script src="{{ url_for('static', filename='js/extention/choices.js')}}"></script>

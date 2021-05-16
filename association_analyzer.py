@@ -116,13 +116,3 @@ def check_objects(baskets,
 
     return check_objects_from_df(result_df, basket_col='basket', objects=objects, count=count)
 
-def summary_check_objects(check_df):
-
-    no_of_basket = len(check_df)
-    summary_df = check_df.sum().to_frame(name='Count')
-    summary_df['%'] = (summary_df['Count']/no_of_basket) * 100
-
-    summary_df.insert(loc=0, column='Object', value=summary_df.index)
-    summary_df = summary_df.reset_index(drop=True)
-
-    return summary_df

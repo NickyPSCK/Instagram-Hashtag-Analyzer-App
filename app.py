@@ -14,6 +14,7 @@ from util.init_sys import InitSystem
 from util.utility import round_df
 
 from hashtag_analyzer import HashtagAnalyzer
+from image_analyzer import summary_single_view, summary_check_objects
 
 app = Flask(__name__)
 
@@ -102,23 +103,34 @@ def result():
 
     # SECTION 1
     section_1_tables = dict()
-    section_1_tables['Images Properties'] = round_df(df=analysis_result['Summary Images Properties'], decimals=decimals)
+    section_1_tables['Images Size'] = summary_single_view(analysis_result['Single Image View'], key=['width', 'height'], decimals=decimals)
+    section_1_tables['Aspect Ratio'] = summary_single_view(analysis_result['Single Image View'], key=['aspect ratio'], decimals=decimals)
+    section_1_tables['Orientation'] = summary_single_view(analysis_result['Single Image View'], key=['orientation'], decimals=decimals)
     section_1_tables = process_result(**section_1_tables)
 
     # SECTION 2
     section_2_tables = dict()
-    section_2_tables['Summary Sentiment Analysis'] = round_df(df=analysis_result['Summary Sentiment Analysis'], decimals=decimals)
-    section_2_tables['Summary Style Analysis'] = round_df(df=analysis_result['Summary Style Analysis'], decimals=decimals)
-    section_2_tables['Summary Scene Analysis'] = round_df(df=analysis_result['Summary Scene Analysis'], decimals=decimals)
-    section_2_tables['Summary Scene Cat Analysis'] = round_df(df=analysis_result['Summary Scene Cat Analysis'], decimals=decimals)
-    section_2_tables['Summary Tracked Objects Analysis'] = round_df(df=analysis_result['Summary Tracked Objects Analysis'], decimals=decimals)
+    section_2_tables['Sentiment Analysis'] = summary_single_view(analysis_result['Single Image View'], key=['sentiment'], decimals=decimals)
+    section_2_tables['Style Analysis'] = summary_single_view(analysis_result['Single Image View'], key=['style'], decimals=decimals)
+    section_2_tables['Scene Analysis'] = summary_single_view(analysis_result['Single Image View'], key=['scence'], decimals=decimals)
+    section_2_tables['Indoor/Outdoor Analysis'] = summary_single_view(analysis_result['Single Image View'], key=['indoor/outdoor'], decimals=decimals)
     section_2_tables = process_result(**section_2_tables)
 
     # SECTION 3
     section_3_tables = dict()
-    section_3_tables['Support'] = round_df(df=analysis_result['Support'], decimals=decimals)
-    section_3_tables['Association Rules'] = round_df(df=analysis_result['Association Rules'], decimals=decimals)
+    section_3_tables['Detected Object'] = summary_check_objects(analysis_result['Single Image View'], column_prefix='detected_')
     section_3_tables = process_result(**section_3_tables)
+    
+    # SECTION 4
+    section_4_tables = dict()
+    section_4_tables['Support'] = round_df(df=analysis_result['Support'], decimals=decimals)
+    section_4_tables['Association Rules'] = round_df(df=analysis_result['Association Rules'], decimals=decimals)
+    section_4_tables = process_result(**section_4_tables)
+
+    # SECTION 5
+    section_5_tables = dict()
+    section_5_tables['Details'] = analysis_result['Single Image View']
+    section_5_tables = process_result(**section_5_tables)
 
     # -------------------------------------------------------------------------------------------
 
@@ -130,14 +142,14 @@ def result():
 
     detail_result_table = list(zip(processed_img_path_list, *raw_result_tables))
 
-    
-
     return render_template('result.html',
                             hashtag = hashtag,
                             source  = source,
                             section_1_tables = section_1_tables,
                             section_2_tables = section_2_tables,
                             section_3_tables = section_3_tables,
+                            section_4_tables = section_4_tables,
+                            section_5_tables = section_5_tables,
                             detail_result_table = detail_result_table,
                             show_result = True)
 

@@ -13,8 +13,46 @@ import tensorflow
 from tensorflow.keras.preprocessing import image
 
 from predictor import load_images, get_imgs_properties, ClassificationPredictor, RatinaNetPrediction, YOLOPrediction
-from association_analyzer import calculate_support, calculate_association, check_objects, summary_check_objects
+from association_analyzer import calculate_support, calculate_association, check_objects_from_df
+from util.utility import round_df
 
+# --------------------------------------------------------------------------------------------------------
+# ImageAnalyzer Utility Functions
+# --------------------------------------------------------------------------------------------------------
+def summary_classification_result(result_df):
+    predicted_class = result_df.iloc[:,1:].idxmax(axis="columns")
+    idmax_result_df = predicted_class.value_counts().to_frame()
+    idmax_result_df.columns = ['Number of Image']
+    idmax_result_df['Percentage of Image'] = 100*idmax_result_df['Number of Image']/result_df.count()
+    idmax_result_df.sort_values(by='Number of Image', ascending=False, inplace = True)
+    idmax_result_df = idmax_result_df.reset_index()
+    idmax_result_df.columns = ['Class', 'Number of Image', 'Percentage of Image']
+    return predicted_class, idmax_result_df
+
+def summary_single_view(single_view_df, key:list, decimals:int=2):
+    selected_col = ['path'] + key
+    summary_df = single_view_df[selected_col].groupby(key).count().reset_index()
+    summary_df['%'] = 100*summary_df['path']/summary_df['path'].sum()
+    summary_df = summary_df.rename(columns = {'path': 'count'})
+    summary_df = summary_df.sort_values(by='count', ascending=False)
+    return round_df(summary_df, decimals=decimals)
+
+def summary_check_objects(check_df, key:list=None, column_prefix:str=None, decimals:int=2):
+    if key is None:
+        key = list()
+
+    if column_prefix is not None:
+        prefix_key = [col_name for col_name in list(check_df.columns) if col_name.startswith(column_prefix)]
+    else:
+        prefix_key = list()
+
+    check_df = check_df[key + prefix_key]
+    no_of_basket = len(check_df)
+    summary_df = check_df.sum().to_frame(name='count')
+    summary_df['%'] = (summary_df['count']/no_of_basket) * 100
+    summary_df.insert(loc=0, column='object', value=summary_df.index)
+    summary_df = summary_df.reset_index(drop=True)
+    return round_df(summary_df, decimals=decimals)
 # --------------------------------------------------------------------------------------------------------
 # ImageAnalyzer
 # --------------------------------------------------------------------------------------------------------
@@ -180,16 +218,6 @@ class ImageAnalyzer:
 
         return result_df
 
-    def summary_classification_result(self, result_df):
-        predicted_class = result_df.iloc[:,1:].idxmax(axis="columns")
-        idmax_result_df = predicted_class.value_counts().to_frame()
-        idmax_result_df.columns = ['Number of Image']
-        idmax_result_df['Percentage of Image'] = 100*idmax_result_df['Number of Image']/result_df.count()
-        idmax_result_df.sort_values(by='Number of Image', ascending=False, inplace = True)
-        idmax_result_df = idmax_result_df.reset_index()
-        idmax_result_df.columns = ['Class', 'Number of Image', 'Percentage of Image']
-        return predicted_class, idmax_result_df
-
     @__check_load_image
     def analyze(self, tracked_objs:list=None):
 
@@ -211,50 +239,31 @@ class ImageAnalyzer:
         predicted_scence_class = result_scene_df.iloc[:,1:].idxmax(axis="columns")
         predicted_scene_cat_class = result_scene_cat_df.iloc[:,1:].idxmax(axis="columns")
 
-        # try:
 
         object_detection_decoded_predictions = self.object_detection()
         single_support_df, association_rules_df = self.frequent_object_set(object_detection_decoded_predictions)
         
-        result_check_objects = check_objects(object_detection_decoded_predictions, objects=tracked_objs, count=False)
-        result_summary_check_objects = summary_check_objects(result_check_objects)
-        result_check_objects.insert(loc=0, column='path', value=self.list_of_image_path)
-
-        # tracked_objs
-        # result_check_objects = result_check_objects[['path']]
-
-        # except:
-        #     single_support_df = pd.DataFrame(columns=['Object', 'Number of Object', 'Number of Image', 'Support: Object', 'Support: Image'])
-        #     association_rules_df = pd.DataFrame(columns=['Antecedents', 'Consequents', 'Support', 'Confidence', 'Lift'])
-
-
-
-
 
         # Single Image View
         single_images_view =  self.images_properties()
         single_images_view['sentiment'] = predicted_sentiment_class
         single_images_view['style'] = predicted_style_class
         single_images_view['scence'] = predicted_scence_class
-        single_images_view['scene_cat'] = predicted_scene_cat_class
-        single_images_view['detected_object'] = object_detection_decoded_predictions
+        single_images_view['indoor/outdoor'] = predicted_scene_cat_class
+        single_images_view['objects'] = object_detection_decoded_predictions
 
+        detected_objects_df = check_objects_from_df(single_images_view, basket_col='path', objects=tracked_objs, count=False, prefix='detected_')
+
+        single_images_view = pd.concat([single_images_view, detected_objects_df], axis=1)
 
         return  {
                     'Single Image View': single_images_view,            
-
                     'Prob Sentiment Analysis':result_sentiment_df, 
                     'Prob Style Analysis': result_style_df, 
                     'Prob Scene Analysis': result_scene_df, 
                     'Prob Scene Cat Analysis': result_scene_cat_df,
-
-                    'Prob Tracked Objects Analysis':result_check_objects,
-                    
-                    'Summary Tracked Objects Analysis': result_summary_check_objects,
-
                     'Support': single_support_df, 
                     'Association Rules': association_rules_df,
-
                     'image_path': self.list_of_image_path
                 }
 
