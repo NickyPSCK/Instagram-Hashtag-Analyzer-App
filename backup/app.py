@@ -48,6 +48,19 @@ def process_result(**dfs):
         df_list.append({'name':name, 'head':table_head, 'data':table_data})
     return df_list
 
+def convert_pattern(data_wo_path_list):
+    # -------------------------------------------------------------------------------------------
+    # Process result_sentiment_df and result_style_df
+    # -------------------------------------------------------------------------------------------
+    data_wo_path_list_of_tupple = list()
+    for prediction in data_wo_path_list:
+
+        prediction_tuple = [(k, round(v,4)) for k, v in prediction.items()]
+        sorted_result = sorted(prediction_tuple, key=lambda i: i[1], reverse=True) 
+        data_wo_path_list_of_tupple.append(sorted_result)
+
+    return data_wo_path_list_of_tupple
+
 # def convert_returned_args(args):
 
 #     args_dict = args.to_dict(flat=False)
@@ -89,6 +102,15 @@ def result():
         analysis_result = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs)
 
     
+    raw_result_tables = list()
+
+    for table_name in analysis_result:
+        if 'image_path' not in table_name.lower():
+            if 'prob' in table_name.lower():
+                raw_df = analysis_result[table_name].drop('path', axis=1)
+                raw_list = raw_df.to_dict('records')
+                raw_list_of_tupple = convert_pattern(raw_list)
+                raw_result_tables.append(raw_list_of_tupple)
 
     decimals = 2
 
@@ -124,21 +146,31 @@ def result():
 
     # SECTION 5
 
+
+
+
     section_5_tables = dict()
     section_5_tables['Details'] = analysis_result['Single Image View']
-    section_5_tables = process_result(**section_5_tables)
 
-    # SECTION 6  
-    prob_tables = {
+    prob_dfs = {
     'Prob Sentiment Analysis': analysis_result['Prob Sentiment Analysis'],
     'Prob Style Analysis': analysis_result['Prob Style Analysis'],
     'Prob Scene Analysis': analysis_result['Prob Scene Analysis'],
     'Prob Scene Cat Analysis': analysis_result['Prob Scene Cat Analysis']
     }
-    section_6_tables = dict()
-    section_6_tables['Probability Details'] = merge_prob_result (path_column_name='path', sep='\n', limit=5, floating_point=4,**prob_tables)
-    section_6_tables = process_result(**section_6_tables)
+
+    section_5_tables['More Details'] = merge_prob_result (path_column_name='path', sep='\n', limit=5, floating_point=4,**prob_dfs)
+    section_5_tables = process_result(**section_5_tables)
+
     # -------------------------------------------------------------------------------------------
+
+    img_path_list = analysis_result['image_path']
+    processed_img_path_list = list()
+    for img_path in img_path_list:
+        img_path = '/'.join(img_path.split('/')[1:])
+        processed_img_path_list.append(img_path)
+
+    detail_result_table = list(zip(processed_img_path_list, *raw_result_tables))
 
     return render_template('result.html',
                             hashtag = hashtag,
@@ -148,7 +180,7 @@ def result():
                             section_3_tables = section_3_tables,
                             section_4_tables = section_4_tables,
                             section_5_tables = section_5_tables,
-                            section_6_tables = section_6_tables,
+                            detail_result_table = detail_result_table,
                             show_result = True)
 
 if __name__ == "__main__":

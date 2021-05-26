@@ -39,6 +39,7 @@
         <!-- SECTION 1 -->
         <div class="my-3 p-3 bg-light bg-body rounded shadow-sm">
           <h4 class="border-bottom pb-2 mb-0">Image Demographic</h4>
+          <p></p>
           <div class="row align-items-md-stretch"> 
             <div class="col-md-6">
               {% for table in section_1_tables[::2] %}
@@ -99,9 +100,11 @@
 
           </div>
         </div>
+
         <!-- SECTION 2 -->
         <div class="my-3 p-3 bg-light bg-body rounded shadow-sm">
           <h4 class="border-bottom pb-2 mb-0">Image Categories</h4>
+          <p></p>
           <div class="row align-items-md-stretch"> 
 
             <div class="col-md-6">
@@ -165,11 +168,42 @@
           </div>
         </div>
 
+        <!-- SECTION 3 -->
+        <div class="my-3 p-3 bg-light bg-body rounded shadow-sm">
+          <h4 class="border-bottom pb-2 mb-0">Tracking Objects</h4>
+          <p></p>
+          {% for table in section_3_tables %}
+          <div class="p-2 mb-4 bg-light rounded-3"> 
+            <h5 class="border-bottom pb-2 mb-0">{{table['name']}}</h5>
 
+            <table class="table table-striped">
+              <thead class="thead-dark">
+                <tr>
+                    {% for col in table['head'] %}
+                        <th scope="col">{{col}}</th>
+                    {% endfor %}
+                </tr>
+              </thead>
+                <tbody>
+                    {% for row_data in table['data'] %}
+                    <tr>
+
+                        {% for col_data in row_data %}
+                            <td>{{ col_data }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+        
+            </table>
+          </div>
+          {% endfor %}          
+        </div>
 
         <!-- SECTION 4 -->
         <div class="my-3 p-3 bg-light bg-body rounded shadow-sm">
           <h4 class="border-bottom pb-2 mb-0">Association Analysis</h4>
+          <p></p>
           {% for table in section_4_tables %}
           <div class="p-2 mb-4 bg-light rounded-3"> 
             <h5 class="border-bottom pb-2 mb-0">{{table['name']}}</h5>
@@ -202,15 +236,16 @@
         <!-- SECTION 5 -->
         <div class="my-3 p-3 bg-light bg-body rounded shadow-sm">
           <h4 class="border-bottom pb-2 mb-0">Single View</h4>
+          <p></p>
           {% for table in section_5_tables %}
           <div class="p-2 mb-4 bg-light rounded-3 text-nowrap overflow-auto"> 
-            <h2>{{table['name']}}</h2>
+            <h4>{{table['name']}}</h4>
 
             <table class="table table-striped table-responsive-md">
               <thead class="thead-dark">
                 <tr>
                     {% for col in table['head'] %}
-                        <th scope="col" style="width:100%">{{col}}</th>
+                        <th scope="col">{{col}}</th>
                     {% endfor %}
                 </tr>
               </thead>
@@ -220,7 +255,7 @@
                     <tr> 
                       <td> 
                         <figure class="figure" >
-                          <img src="{{ row_data[0] }}" alt="..." class="img-thumbnail" >
+                          <img src="{{ row_data[0] }}" alt="..." class="img-thumbnail" width="300">
                         </figure>
                       </td>
                       {% for col_data in (row_data | list)[1:] %}
@@ -234,63 +269,42 @@
           </div>
           {% endfor %}          
 
-          <!-- SECTION DETAILS -->
 
+        <!-- SECTION 6 -->
+        <div class="my-3 p-3 bg-light bg-body rounded shadow-sm">
+          <h4 class="border-bottom pb-2 mb-0">Probability</h4>
+          <p></p>
+          {% for table in section_6_tables %}
+          <div class="p-2 mb-4 bg-light rounded-3 text-nowrap overflow-auto"> 
+            <h4>{{table['name']}}</h4>
 
-
-
-
-
-          <div class="p-5 mb-4 bg-light rounded-3"> 
-
-
-  
-            <h2 class="display-5 fw-bold">Details</h2>
-
-            <table class="table table-striped ">
+            <table class="table table-striped table-responsive-md">
               <thead class="thead-dark">
                 <tr>
-                      <th scope="col" style="width:50%">Image</th>
-                      <th scope="col" style="width:25%">Style Probability</th>
-                      <th scope="col" style="width:25%">Sentiment Probability</th>
-                      <th scope="col" style="width:25%">Scence Probability</th>
+                    {% for col in table['head'] %}
+                        <th scope="col">{{col}}</th>
+                    {% endfor %}
                 </tr>
               </thead>
                 <tbody>
-                    {% for row_data in detail_result_table %}
-                    <tr>
-                        <td>
-                          <div class="text-center">
-                          <img src="{{ url_for('static', filename=row_data[0])}}" alt="..." class="img-thumbnail" width= 90%>
-                          </div>
-                        </td>
-                        <td>
-                            <p>
-                            {% for col_data in row_data[1] %}
-                              {{ col_data[0] }}: {{ col_data[1] }} <br/>
-                            {% endfor %}
-                            </p>
-                        </td>
-                        <td>
-                          <p>
-                          {% for col_data in row_data[2] %}
-                            {{ col_data[0] }}: {{ col_data[1] }} <br/>
-                          {% endfor %}
-                          </p>
-                      </td>                              
-                      <td>
-                        <p>
-                        {% for col_data in row_data[3] %}
-                          {{ col_data[0] }}: {{ col_data[1] }} <br/>
-                        {% endfor %}
-                        </p>
-                    </td>                             
+                    {% for row_data in table['data'] %}
+                    
+                    <tr> 
+                      <td> 
+                        <figure class="figure" >
+                          <img src="{{ row_data[0] }}" alt="..." class="img-thumbnail" width="300">
+                        </figure>
+                      </td>
+                      {% for col_data in (row_data | list)[1:] %}
+                          <td>{{ col_data }}</td>
+                      {% endfor %}
                     </tr>
                     {% endfor %}
                 </tbody>
         
             </table>
           </div>
+          {% endfor %}  
 
         {% endif %}
         </main>  
@@ -305,6 +319,7 @@
             Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
           </div>
         </div> -->
+      <div class="container">
         <p>
           <a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">Toggle first element</a>
           <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#multiCollapseExample2" aria-expanded="false" aria-controls="multiCollapseExample2">Toggle second element</button>
@@ -326,7 +341,7 @@
             </div>
           </div>
         </div>
-
+      </div>
 
 
     <!-- </div> -->
