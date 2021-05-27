@@ -71,24 +71,36 @@ def result():
     source = form_data['source'][0]
     limit = int(form_data['limit'][0])
     tracked_objs = form_data.get('objs', list())
+    confident_threshold = 0.5
+    non_maxium_suppression_threshold = 0.3
 
     if source == 'Flickr':
-        analysis_result = analyzer.analyze_flickr(hashtag=hashtag, limit=limit, tracked_objs=tracked_objs)
+        analysis_result = analyzer.analyze_flickr(hashtag=hashtag, limit=limit, tracked_objs=tracked_objs, 
+                                                    confident_threshold=confident_threshold, 
+                                                    non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     elif source == 'Instagram':
-        analysis_result = analyzer.analyze_ig(hashtag=hashtag, limit=limit, tracked_objs=tracked_objs)
+        analysis_result = analyzer.analyze_ig(hashtag=hashtag, limit=limit, tracked_objs=tracked_objs, 
+                                                    confident_threshold=confident_threshold, 
+                                                    non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     elif source == 'Demo1':
         hashtag = 'DEMO1'
-        analysis_result = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs)
+        analysis_result = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs, 
+                                                    confident_threshold=confident_threshold, 
+                                                    non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     elif source == 'Demo2':
         hashtag = 'DEMO2'
-        analysis_result = analyzer.analyze_demo(demo_id=2, tracked_objs=tracked_objs)
+        analysis_result = analyzer.analyze_demo(demo_id=2, tracked_objs=tracked_objs, 
+                                                    confident_threshold=confident_threshold, 
+                                                    non_maxium_suppression_threshold=non_maxium_suppression_threshold)
     elif source == 'Demo3':
         hashtag = 'DEMO3'
-        analysis_result = analyzer.analyze_demo(demo_id=3, tracked_objs=tracked_objs)
+        analysis_result = analyzer.analyze_demo(demo_id=3, tracked_objs=tracked_objs, 
+                                                    confident_threshold=confident_threshold, 
+                                                    non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     else:
-        analysis_result = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs)
-
-    
+        analysis_result = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs, 
+                                                    confident_threshold = confident_threshold, 
+                                                    non_maxium_suppression_threshold = non_maxium_suppression_threshold)
 
     decimals = 2
 
@@ -136,7 +148,7 @@ def result():
     'Prob Scene Cat Analysis': analysis_result['Prob Scene Cat Analysis']
     }
     section_6_tables = dict()
-    section_6_tables['Probability Details'] = merge_prob_result (path_column_name='path', sep='\n', limit=5, floating_point=4,**prob_tables)
+    section_6_tables['Probability Details'] = merge_prob_result(path_column_name='path', sep='\n', limit=5, floating_point=4,**prob_tables)
     section_6_tables = process_result(**section_6_tables)
     # -------------------------------------------------------------------------------------------
 

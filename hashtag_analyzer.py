@@ -79,7 +79,7 @@ class HashtagAnalyzer:
         self.downloaded_path_ig = 'static/downloads/hashtag/instagram/'
         self.downloaded_path_flickr = 'static/downloads/hashtag/flickr/'
 
-    def analyze_ig(self, hashtag, tracked_objs:list=None, limit:int=5):
+    def analyze_ig(self, hashtag, tracked_objs:list=None, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3, limit:int=5):
 
         if self.__ig_login_status == False:
             self.__ig_scraper = InstagramScraper(user=self.__user, password=self.__password)
@@ -97,12 +97,12 @@ class HashtagAnalyzer:
         target_result_dir = f'{result_dir}*.jpg'
 
         self.__analyzer.load_image(target_result_dir)
-        analysis_result = self.__analyzer.analyze(tracked_objs=tracked_objs)
+        analysis_result = self.__analyzer.analyze(tracked_objs=tracked_objs, confident_threshold=confident_threshold, non_maxium_suppression_threshold=non_maxium_suppression_threshold)
         print('Analyzed')
 
         return analysis_result
 
-    def analyze_flickr(self, hashtag, sort_by='relevance', tracked_objs:list=None, limit:int=5):
+    def analyze_flickr(self, hashtag, sort_by='relevance', confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3, tracked_objs:list=None, limit:int=5):
         # Download Image
         prefix = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_UTC")
 
@@ -115,19 +115,19 @@ class HashtagAnalyzer:
         target_result_dir = f'{result_dir}*.jpg'
 
         self.__analyzer.load_image(target_result_dir)
-        analysis_result = self.__analyzer.analyze(tracked_objs=tracked_objs)
+        analysis_result = self.__analyzer.analyze(tracked_objs=tracked_objs, confident_threshold=confident_threshold, non_maxium_suppression_threshold=non_maxium_suppression_threshold)
         print('Analyzed')
 
         return analysis_result
 
-    def analyze_demo(self, demo_id=1, tracked_objs:list=None):
+    def analyze_demo(self, demo_id=1, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3, tracked_objs:list=None):
 
         result_dir = f'static/downloads/hashtag/demo/demo{demo_id}/'
         target_result_dir = f'{result_dir}*.jpg'
 
         print('Analyzing..')
         self.__analyzer.load_image(target_result_dir)
-        analysis_result = self.__analyzer.analyze(tracked_objs=tracked_objs)
+        analysis_result = self.__analyzer.analyze(tracked_objs=tracked_objs, confident_threshold=confident_threshold, non_maxium_suppression_threshold=non_maxium_suppression_threshold)
         print('Analyzed')
 
         return analysis_result

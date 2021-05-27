@@ -91,6 +91,7 @@ def calculate_association(dataset:list,
     return frequent_itemsets_df, association_rules_df
 
 def check_objects_from_df(result_df, basket_col:str='basket', objects:list=None, count:bool=False, prefix:str=''):
+    
     result_df = result_df[[basket_col]].copy()
 
     if count:

@@ -174,10 +174,12 @@ class ImageAnalyzer:
         return result_scene_df, result_scene_cat_df
 
     @__check_load_image
-    def object_detection(self):
+    def object_detection(self, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3):
         predictions = self.__object_detection.predict(self.__X)
         return self.__object_detection.decode_predictions(predictions, 
-                                                                class_label=self.object_detection_class_label)
+                                                                class_label=self.object_detection_class_label,
+                                                                confident_threshold=confident_threshold, 
+                                                                non_maxium_suppression_threshold=non_maxium_suppression_threshold)
 
     def frequent_object_set(self, decoded_predictions):
         
@@ -219,7 +221,7 @@ class ImageAnalyzer:
         return result_df
 
     @__check_load_image
-    def analyze(self, tracked_objs:list=None):
+    def analyze(self, tracked_objs:list=None, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3):
 
         if tracked_objs is None:
             tracked_objs = list()
@@ -240,7 +242,9 @@ class ImageAnalyzer:
         predicted_scene_cat_class = result_scene_cat_df.iloc[:,1:].idxmax(axis="columns")
 
 
-        object_detection_decoded_predictions = self.object_detection()
+        object_detection_decoded_predictions = self.object_detection(   confident_threshold=confident_threshold, 
+                                                                        non_maxium_suppression_threshold=non_maxium_suppression_threshold)
+                                                                        
         single_support_df, association_rules_df = self.frequent_object_set(object_detection_decoded_predictions)
         
 
@@ -252,7 +256,7 @@ class ImageAnalyzer:
         single_images_view['indoor/outdoor'] = predicted_scene_cat_class
         single_images_view['objects'] = object_detection_decoded_predictions
 
-        detected_objects_df = check_objects_from_df(single_images_view, basket_col='path', objects=tracked_objs, count=False, prefix='detected_')
+        detected_objects_df = check_objects_from_df(single_images_view, basket_col='objects', objects=tracked_objs, count=False, prefix='detected_')
 
         single_images_view = pd.concat([single_images_view, detected_objects_df], axis=1)
 

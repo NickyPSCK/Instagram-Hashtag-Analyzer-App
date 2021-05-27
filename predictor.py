@@ -251,7 +251,7 @@ class YOLOPrediction(RatinaNetPrediction):
         self.model_weight_path = model_weight_path
         self.__yolo_img_width = 416             # width of the network input image
         self.__yolo_img_hight = 416             # height of the network input image
-        self.__yolo_model_confident = 0.5
+        self.__yolo_model_confident = 0
 
         RatinaNetPrediction.__init__(self, model_path, class_label)
 
