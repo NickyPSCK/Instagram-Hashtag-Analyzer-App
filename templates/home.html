@@ -41,14 +41,14 @@
             </div>
           </div>
           <div class="advance-search">
-            <!-- <span class="desc">Advanced Search</span> -->
             <div class="row">
               <div class="input-field">
                 <label style="color:white">SOURCE</label>
                 <div class="input-select">
                   <select data-trigger="" name="source" required>
                     <option value="Flickr" selected>Flickr</option>
-                    <option value="Instagram" >Instagram</option>
+                    <option value="Instagram_Account" >Instagram Account</option>
+                    <option value="Instagram_Hashtag" >Instagram Hashtag</option>
                     <option value="Demo1">zDemo1</option>
                     <option value="Demo2">zDemo2</option>
                     <option value="Demo3">zDemo3</option>
@@ -59,58 +59,84 @@
                 <label style="color:white">LIMIT</label>
                 <div class="input-select">
                   <select data-trigger="" name="limit" required>
-                    <option value="5">5</option>
                     <option value="10" selected>10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                    <option value="150">150</option>
-                    <option value="200">200</option>
-                    <option value="500">500</option>
-                    <option value="1000">1000</option>
+                    {% for i in range(5, 1000, 5) %}
+                      <option value={{i}}>{{i}}</option>
+                    {% endfor %}
                   </select>
                 </div>
               </div>
+
               <div class="input-field">
-                <!-- <button class="btn-search">Search</button> -->
                 <div class="group-btn">
                   <button class="btn-delete" id="delete">Reset</button>
                   <button class="btn-search">ANALYZE</button>
                 </div>
               </div>
 
+            </div>
+
+            <div class="row">
+              <label style="color:white">Tracking Object</label>
+            </div>
+            <div class="row">
+              <select  class="select" multiple name="objs">
+                {% for i in obj_dict %}
+                  {% if obj_dict[i]!="person" %}
+                    <option value={{obj_dict[i]}}>{{obj_dict[i]}}</option>
+                  {% else %}
+                    <option value={{obj_dict[i]}} selected>{{obj_dict[i]}}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="row">
+
+              <div class="input-field">
+                <label style="color:white">Confident</label>
+                <dc class="input-select">
+                  <select data-trigger="" name="confident_threshold" required>
+                    <option value="0.5" selected>0.5</option>
+                    {% for i in range(1, 10, 1) %}
+                      <option value={{i/10}}>{{i/10}}</option>
+                    {% endfor %}
+                  </select>
+                </dc>
+              </div>
+
+              <div class="input-field">
+                <label style="color:white">Non Maxium Suppression</label>
+                <dc class="input-select">
+                  <select data-trigger="" name="non_maxium_suppression_threshold" required>
+                    <option value="0.3" selected>0.3</option>
+                    {% for i in range(1, 10, 1) %}
+                      <option value={{i/10}}>{{i/10}}</option>
+                    {% endfor %}
+                  </select>
+                </dc>
+              </div>
+
+              <div class="input-field">
+                <label style="color:white">Top N Prob</label>
+                <dc class="input-select">
+                  <select data-trigger="" name="top_n_prob" required>
+                    <option value="5" selected>5</option>
+                    {% for i in range(1, 10, 1) %}
+                      <option value={{i}}>{{i}}</option>
+                    {% endfor %}
+                    <option value="-1">All</option>
+                  </select>
+                </dc>
+              </div>
+
+            </div>
+
+
+
+
           </div>
-            <!-- <div class="input-field">  -->
-              <div class="row">
-
-
-                <label style="color:white">Tracking Object</label>
-
-              </div>
-
-              <div class="row">
-                <select  class="select" multiple name="objs">
-
-                  {% for i in obj_dict %}
-                    {% if obj_dict[i]!="person" %}
-                      <option value={{obj_dict[i]}}>{{obj_dict[i]}}</option>
-                    {% else %}
-                      <option value={{obj_dict[i]}} selected>{{obj_dict[i]}}</option>
-
-                    {% endif %}
-                  {% endfor %}
-
-                  <!-- <option value="0" selected>person</option>-->
-
-                </select>
-
-
-
-
-              </div>
-            <!-- </div> -->
         </div>
-      </div>
     </fieldset>
 
     <p style="margin-bottom: 15px; color:white; font-size:20px; font-weight: bold ; text-align:center">Social Media Hashtag Analyzer</p>

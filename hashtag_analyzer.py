@@ -18,7 +18,8 @@ class HashtagAnalyzer:
     def __init__(   self, 
                     user:str, 
                     password:str,
-                    
+                    login:bool,
+
                     sentiment_classifier_path:str,
                     sentiment_classifier_pre_prep_func:object,
                     sentiment_classifier_class_label:list,
@@ -47,6 +48,8 @@ class HashtagAnalyzer:
         self.__user = user
         self.__password = password
         self.__ig_login_status = False
+
+        self.__ig_login = login
 
         
         self.__flickr_scraper = FlickrScraper()
@@ -79,21 +82,21 @@ class HashtagAnalyzer:
         self.downloaded_path_ig = 'static/downloads/hashtag/instagram/'
         self.downloaded_path_flickr = 'static/downloads/hashtag/flickr/'
 
-    def analyze_ig(self, hashtag, tracked_objs:list=None, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3, limit:int=5):
+    def analyze_ig(self, target, mode:str='account',tracked_objs:list=None, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3, limit:int=5):
 
         if self.__ig_login_status == False:
-            self.__ig_scraper = InstagramScraper(user=self.__user, password=self.__password)
+            self.__ig_scraper = InstagramScraper(user=self.__user, password=self.__password, login=self.__ig_login)
             self.__ig_login_status = True
         
         # Download Image
         prefix = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_UTC")
 
         print('Downloading..')
-        self.__ig_scraper.download_from_hashtag(hashtag=hashtag, path=self.downloaded_path_ig, prefix=prefix, limit=limit)
+        self.__ig_scraper.download_from_hashtag(target=target, mode=mode, path=self.downloaded_path_ig, prefix=prefix, limit=limit)
         print('Downloaded')
 
         print('Analyzing..')
-        result_dir = f'{self.downloaded_path_ig}{prefix}_{hashtag}/'
+        result_dir = f'{self.downloaded_path_ig}{prefix}_{target}/'
         target_result_dir = f'{result_dir}*.jpg'
 
         self.__analyzer.load_image(target_result_dir)

@@ -4,7 +4,6 @@
 # --------------------------------------------------------------------------------------------------------
 # IMPORT REQUIRED PACKAGES
 # --------------------------------------------------------------------------------------------------------
-
 import numpy as np
 import pandas as pd
 import tensorflow
@@ -29,6 +28,8 @@ def merge_prob_result(path_column_name:str='path',sep:str='\n', limit:int=5, flo
         row_list = list(row_dict.items())
         row_list.sort(reverse=True, key=lambda x: x[1])
         result_str = ''
+        if limit > -1:
+            limit+=1
         for each in row_list[:limit]:
             result_str += each[0] + ':' +str(round(each[1], floating_point)) + sep
         return result_str
@@ -48,14 +49,8 @@ def process_result(**dfs):
         df_list.append({'name':name, 'head':table_head, 'data':table_data})
     return df_list
 
-# def convert_returned_args(args):
+# -------------------------------------------------------------------------------------------
 
-#     args_dict = args.to_dict(flat=False)
-#     for arg in args_dict:
-#         if len(args_dict[arg]) == 1:
-#             args_dict[arg] = args_dict[arg][0]
-
-#     return args_dict
 
 @app.route('/')
 def home():
@@ -71,15 +66,20 @@ def result():
     source = form_data['source'][0]
     limit = int(form_data['limit'][0])
     tracked_objs = form_data.get('objs', list())
-    confident_threshold = 0.5
-    non_maxium_suppression_threshold = 0.3
+    confident_threshold = float(form_data['confident_threshold'][0])
+    non_maxium_suppression_threshold = float(form_data['non_maxium_suppression_threshold'][0])
+    top_n_prob = int(form_data['top_n_prob'][0])
 
     if source == 'Flickr':
         analysis_result = analyzer.analyze_flickr(hashtag=hashtag, limit=limit, tracked_objs=tracked_objs, 
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
-    elif source == 'Instagram':
-        analysis_result = analyzer.analyze_ig(hashtag=hashtag, limit=limit, tracked_objs=tracked_objs, 
+    elif source == 'Instagram_Account':
+        analysis_result = analyzer.analyze_ig(target=hashtag, mode='account', limit=limit, tracked_objs=tracked_objs, 
+                                                    confident_threshold=confident_threshold, 
+                                                    non_maxium_suppression_threshold = non_maxium_suppression_threshold)
+    elif source == 'Instagram_Hashtag':
+        analysis_result = analyzer.analyze_ig(target=hashtag, mode='hashtag',limit=limit, tracked_objs=tracked_objs, 
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     elif source == 'Demo1':
@@ -135,7 +135,6 @@ def result():
     section_4_tables = process_result(**section_4_tables)
 
     # SECTION 5
-
     section_5_tables = dict()
     section_5_tables['Details'] = analysis_result['Single Image View']
     section_5_tables = process_result(**section_5_tables)
@@ -148,7 +147,7 @@ def result():
     'Prob Scene Cat Analysis': analysis_result['Prob Scene Cat Analysis']
     }
     section_6_tables = dict()
-    section_6_tables['Probability Details'] = merge_prob_result(path_column_name='path', sep='\n', limit=5, floating_point=4,**prob_tables)
+    section_6_tables['Probability Details'] = merge_prob_result(path_column_name='path', sep='\n', limit=top_n_prob, floating_point=4,**prob_tables)
     section_6_tables = process_result(**section_6_tables)
     # -------------------------------------------------------------------------------------------
 
@@ -171,7 +170,6 @@ if __name__ == "__main__":
 
     user = cl.get('login', 'user', data_type=str)
     password = cl.get('login', 'password', data_type=str)
-
     theme = cl.get('web', 'theme', data_type=str)
 
     with open('config/class.json', 'r') as f:
@@ -180,6 +178,7 @@ if __name__ == "__main__":
     analyzer = HashtagAnalyzer(     
                                     user = user, 
                                     password = password,
+                                    login=False,
                                     sentiment_classifier_path='model/sentiment_classification.h5',
                                     sentiment_classifier_pre_prep_func = tensorflow.keras.applications.efficientnet.preprocess_input,
                                     sentiment_classifier_class_label = class_label['sentiment_classification_label'],

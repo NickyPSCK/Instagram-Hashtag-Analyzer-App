@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 # InstagramScraper
 # --------------------------------------------------------------------------------------------------------
 class InstagramScraper:
-    def __init__(self, user, password):
+    def __init__(self, user:str=None, password:str=None, login:bool=False):
         self.__il = instaloader.Instaloader(
                                         sleep=True, 
                                         quiet=False, 
@@ -22,10 +22,10 @@ class InstagramScraper:
                                         download_pictures=True, 
                                         download_videos=False, 
                                         download_video_thumbnails=False, 
-                                        download_geotags=True, 
-                                        download_comments=True, 
-                                        save_metadata=True, 
-                                        compress_json=True, 
+                                        download_geotags=False, 
+                                        download_comments=False, 
+                                        save_metadata=False, 
+                                        compress_json=False, 
                                         post_metadata_txt_pattern=None, 
                                         storyitem_metadata_txt_pattern=None, 
                                         max_connection_attempts=3, 
@@ -34,23 +34,28 @@ class InstagramScraper:
                                         resume_prefix='iterator', 
                                         check_resume_bbd=True)
 
-        self.__il.login(user, password) 
+        if login:
+            self.__il.login(user, password) 
 
-    def download_from_hashtag(self, hashtag, path='downloads/hashtag/instagram/', prefix=None, limit=10):
+    def download_from_hashtag(self, target, mode='account', path='downloads/hashtag/instagram/', prefix=None, limit=10):
 
         if prefix is None:
             prefix = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         
-        hashtag_data = instaloader.Hashtag.from_name(self.__il.context, hashtag)
-        self.__il.dirname_pattern = f'{path}{prefix}_{hashtag_data.name}/'
-        no = 0
-        for post in hashtag_data.get_posts():
+        if mode == 'account':
+            posts = instaloader.Profile.from_username(self.__il.context, target)
+            self.__il.dirname_pattern = f'{path}{prefix}_{posts.username}/'
 
-            if no > limit:
+        elif mode == 'hashtag':
+            posts = instaloader.Hashtag.from_name(self.__il.context, target)
+            self.__il.dirname_pattern = f'{path}{prefix}_{posts.name}/'
+
+        counter = 0
+        for post in posts.get_posts():
+            if counter > limit:
                 break
-
             self.__il.download_post(post, target='/')
-            no += 1
+            counter += 1
 
 
 if __name__ == '__main__':
