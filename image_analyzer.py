@@ -35,18 +35,11 @@ def summary_single_view(single_view_df, key:list, decimals:int=2):
     summary_df['%'] = 100*summary_df['path']/summary_df['path'].sum()
     summary_df = summary_df.rename(columns = {'path': 'count'})
     summary_df = summary_df.sort_values(by='count', ascending=False)
+    summary_df = summary_df.reset_index(drop=True)
     return round_df(summary_df, decimals=decimals)
 
-def summary_check_objects(check_df, key:list=None, column_prefix:str=None, decimals:int=2):
-    if key is None:
-        key = list()
-
-    if column_prefix is not None:
-        prefix_key = [col_name for col_name in list(check_df.columns) if col_name.startswith(column_prefix)]
-    else:
-        prefix_key = list()
-
-    check_df = check_df[key + prefix_key]
+def summary_check_objects(check_df, decimals:int=2):
+    check_df = check_df.drop('path', axis=1)
     no_of_basket = len(check_df)
     summary_df = check_df.sum().to_frame(name='count')
     summary_df['%'] = (summary_df['count']/no_of_basket) * 100
@@ -211,17 +204,117 @@ class ImageAnalyzer:
             classification_result_dict.append(dict(result))
 
         result_df = pd.DataFrame(classification_result_dict)
-        result_df['path'] = self.list_of_image_path
+        
+        # result_df['path'] = self.list_of_image_path
 
-        path = result_df['path']
+        # path = result_df['path']
 
-        result_df = result_df.drop(labels=['path'], axis=1)
-        result_df.insert(0, 'path', path)
+        # result_df = result_df.drop(labels=['path'], axis=1)
+        # result_df.insert(0, 'path', path)
+
+        result_df.insert(0, 'path', self.list_of_image_path)
 
         return result_df
 
+    def create_detected_objects_df(self, object_detection_decoded_predictions, tracked_objs:list=None, count:bool=False):
+        detected_objects_df = pd.DataFrame()
+        detected_objects_df['pathh'] = self.list_of_image_path
+        detected_objects_df['objects'] = object_detection_decoded_predictions
+        detected_objects_df = check_objects_from_df(detected_objects_df, basket_col='objects', objects=tracked_objs, count=count, prefix='')
+        detected_objects_df.insert(0, 'path', self.list_of_image_path)
+        return detected_objects_df
+
+    def calculate_score(self, result_dict,    
+                                        expected_sentiment:str=None,
+                                        expected_style:list=None, 
+                                        expected_scene:list=None, 
+                                        expected_scene_cat:list=None,
+                                        ):
+        result_score = dict()
+
+        # if len(expected_sentiment) == 0 :
+        #     expected_sentiment = None
+        # if len(expected_style) == 0 :
+        #     expected_style = None
+        # if len(expected_scene) == 0 :
+        #     expected_scene = None
+        # if len(expected_scene_cat) == 0 :
+        #     expected_scene_cat = None
+
+        n = len(result_dict['image_path'])
+        decimals = 2
+
+        if expected_sentiment is not None:
+            sentiment_score = result_dict['Prob Sentiment Analysis'].iloc[:,1:].sum().to_frame(name='score')/n
+            sentiment_score = sentiment_score.reset_index(drop=False)
+
+            if expected_sentiment == 'Positive': 
+                factor = {'Highly Positive': 4, 'Positive':3, 'Neutral':2, 'Negative':1, 'Highly Negative':0}
+                sentiment_score['factor'] = sentiment_score['index'].map(factor)
+                sentiment_score = (sentiment_score['factor'] * sentiment_score['score']).sum()/4
+
+            elif expected_sentiment == 'Negative':
+                factor = {'Highly Positive': 0, 'Positive':1, 'Neutral':2, 'Negative':3, 'Highly Negative':4}
+                sentiment_score['factor'] = sentiment_score['index'].map(factor)
+                sentiment_score = (sentiment_score['factor'] * sentiment_score['score']).sum()/4
+
+            elif expected_sentiment == 'Neutral':
+                factor = {'Highly Positive':2, 'Positive':1, 'Neutral':0, 'Negative':1, 'Highly Negative':2}
+                sentiment_score['factor'] = sentiment_score['index'].map(factor)
+                sentiment_score = 1 - (sentiment_score['factor'] * sentiment_score['score']).sum()/2        
+
+            result_score['Sentiment'] = round(sentiment_score*100, decimals)
+        
+        if expected_style is not None:
+            no_style = len(expected_style)
+            style_score = result_dict['Prob Style Analysis'].iloc[:,1:].sum()[expected_style]/n
+            style_score[style_score > 1/no_style] = 1/no_style
+            style_score = style_score.sum()
+
+            result_score['Style'] = round(style_score*100, decimals)
+
+        if expected_scene is not None:
+            no_scene = len(expected_scene)
+            scene_score = result_dict['Prob Scene Analysis'].iloc[:,1:].sum()[expected_scene]/n
+            scene_score[scene_score > 1/no_scene] = 1/no_scene
+            scene_score = scene_score.sum()
+
+            result_score['Scene'] = round(scene_score*100, decimals)
+
+        if expected_scene_cat is not None:
+            no_scene_cat = len(expected_scene_cat)
+            scene_cat_score = result_dict['Prob Scene Cat Analysis'].iloc[:,1:].sum()[expected_scene_cat]/n
+            scene_cat_score[scene_cat_score > 1/no_scene_cat] = 1/no_scene_cat
+            scene_cat_score = scene_cat_score.sum()
+
+            result_score['Outdoor/Indoor'] = round(scene_cat_score*100, decimals)
+
+        object_score = summary_check_objects(result_dict['Detected Objects'], decimals=None).drop('count', axis=1)
+        object_score['%'] = object_score['%']
+        object_score = round_df(object_score, decimals=decimals)
+        result_object_score = dict(object_score.to_records(index=False))
+        print(result_object_score)
+        result_overall = dict()
+        result_overall.update(result_score)
+        result_overall.update(result_object_score)
+        result_overall = tuple(result_overall.values())
+
+        if len(result_overall) > 0:
+            result_overall = sum(result_overall)/len(result_overall)
+        else:
+            result_overall = 0
+
+        return {'overall': result_overall, 'expected':result_score, 'object':result_object_score}
+
     @__check_load_image
-    def analyze(self, tracked_objs:list=None, confident_threshold:float=0.5, non_maxium_suppression_threshold:float=0.3):
+    def analyze(self, 
+                tracked_objs:list=None, 
+                expected_sentiment:str=None,
+                expected_style:list=None, 
+                expected_scene:list=None, 
+                expected_scene_cat:list=None,
+                confident_threshold:float=0.5, 
+                non_maxium_suppression_threshold:float=0.3):
 
         if tracked_objs is None:
             tracked_objs = list()
@@ -245,9 +338,10 @@ class ImageAnalyzer:
         object_detection_decoded_predictions = self.object_detection(   confident_threshold=confident_threshold, 
                                                                         non_maxium_suppression_threshold=non_maxium_suppression_threshold)
                                                                         
+        detected_objects_df = self.create_detected_objects_df(object_detection_decoded_predictions, tracked_objs=tracked_objs, count=False)
+
         single_support_df, association_rules_df = self.frequent_object_set(object_detection_decoded_predictions)
         
-
         # Single Image View
         single_images_view =  self.images_properties()
         single_images_view['sentiment'] = predicted_sentiment_class
@@ -255,22 +349,28 @@ class ImageAnalyzer:
         single_images_view['scence'] = predicted_scence_class
         single_images_view['indoor/outdoor'] = predicted_scene_cat_class
         single_images_view['objects'] = object_detection_decoded_predictions
+        single_images_view = pd.concat([single_images_view, detected_objects_df.drop('path', axis=1)], axis=1)
 
-        detected_objects_df = check_objects_from_df(single_images_view, basket_col='objects', objects=tracked_objs, count=False, prefix='detected_')
+        result_dict =   {
+                            'Single Image View': single_images_view,            
+                            'Prob Sentiment Analysis':result_sentiment_df, 
+                            'Prob Style Analysis': result_style_df, 
+                            'Prob Scene Analysis': result_scene_df, 
+                            'Prob Scene Cat Analysis': result_scene_cat_df,
+                            'Detected Objects': detected_objects_df,
+                            'Support': single_support_df, 
+                            'Association Rules': association_rules_df,
+                            'image_path': self.list_of_image_path
+                        }
 
-        single_images_view = pd.concat([single_images_view, detected_objects_df], axis=1)
-
-        return  {
-                    'Single Image View': single_images_view,            
-                    'Prob Sentiment Analysis':result_sentiment_df, 
-                    'Prob Style Analysis': result_style_df, 
-                    'Prob Scene Analysis': result_scene_df, 
-                    'Prob Scene Cat Analysis': result_scene_cat_df,
-                    'Support': single_support_df, 
-                    'Association Rules': association_rules_df,
-                    'image_path': self.list_of_image_path
-                }
-
+        score = self.calculate_score( result_dict = result_dict, 
+                            expected_sentiment=expected_sentiment,
+                            expected_style=expected_style, 
+                            expected_scene=expected_scene,
+                            expected_scene_cat=expected_scene_cat,
+                            
+                            )
+        return result_dict, score
 if __name__ == '__main__':
 
     pass

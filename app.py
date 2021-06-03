@@ -51,11 +51,14 @@ def process_result(**dfs):
 
 # -------------------------------------------------------------------------------------------
 
-
 @app.route('/')
 def home():
     theme = 's008'
-    return render_template('home.html', theme=theme, obj_dict=class_label['object_detection_label'])
+    return render_template('home.html', theme=theme, 
+                                        obj_dict=class_label['object_detection_label'],
+                                        style_dict=class_label['style_classification_label'],
+                                        scene_dict=class_label['scene_classification_label'],  
+                                        scene_cat_dict=class_label['scene_classification_cat_label'])
 
 @app.route('/result', methods=['GET'])
 def result():
@@ -70,35 +73,69 @@ def result():
     non_maxium_suppression_threshold = float(form_data['non_maxium_suppression_threshold'][0])
     top_n_prob = int(form_data['top_n_prob'][0])
 
+    expected_sentiment = form_data.get('sentiments',None)[0]
+    expected_style = form_data.get('styles',None)
+    print(expected_style)
+    expected_scene = form_data.get('scenes',None)
+    expected_scene_cat = form_data.get('scene_cats',None)
+
     if source == 'Flickr':
-        analysis_result = analyzer.analyze_flickr(hashtag=hashtag, limit=limit, tracked_objs=tracked_objs, 
+        analysis_result, score = analyzer.analyze_flickr(hashtag=hashtag, limit=limit, tracked_objs=tracked_objs, 
+                                                    expected_sentiment=expected_sentiment,
+                                                    expected_style=expected_style, 
+                                                    expected_scene=expected_scene,
+                                                    expected_scene_cat=expected_scene_cat,
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     elif source == 'Instagram_Account':
-        analysis_result = analyzer.analyze_ig(target=hashtag, mode='account', limit=limit, tracked_objs=tracked_objs, 
+        analysis_result, score  = analyzer.analyze_ig(target=hashtag, mode='account', limit=limit, tracked_objs=tracked_objs, 
+                                                    expected_sentiment=expected_sentiment,
+                                                    expected_style=expected_style, 
+                                                    expected_scene=expected_scene,
+                                                    expected_scene_cat=expected_scene_cat,
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     elif source == 'Instagram_Hashtag':
-        analysis_result = analyzer.analyze_ig(target=hashtag, mode='hashtag',limit=limit, tracked_objs=tracked_objs, 
+        analysis_result, score  = analyzer.analyze_ig(target=hashtag, mode='hashtag',limit=limit, tracked_objs=tracked_objs, 
+                                                    expected_sentiment=expected_sentiment,
+                                                    expected_style=expected_style, 
+                                                    expected_scene=expected_scene,
+                                                    expected_scene_cat=expected_scene_cat,
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     elif source == 'Demo1':
         hashtag = 'DEMO1'
-        analysis_result = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs, 
+        analysis_result, score  = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs, 
+                                                    expected_sentiment=expected_sentiment,
+                                                    expected_style=expected_style, 
+                                                    expected_scene=expected_scene,
+                                                    expected_scene_cat=expected_scene_cat,
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     elif source == 'Demo2':
         hashtag = 'DEMO2'
-        analysis_result = analyzer.analyze_demo(demo_id=2, tracked_objs=tracked_objs, 
+        analysis_result, score  = analyzer.analyze_demo(demo_id=2, tracked_objs=tracked_objs, 
+                                                    expected_sentiment=expected_sentiment,
+                                                    expected_style=expected_style, 
+                                                    expected_scene=expected_scene,
+                                                    expected_scene_cat=expected_scene_cat,
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold=non_maxium_suppression_threshold)
     elif source == 'Demo3':
         hashtag = 'DEMO3'
-        analysis_result = analyzer.analyze_demo(demo_id=3, tracked_objs=tracked_objs, 
+        analysis_result, score  = analyzer.analyze_demo(demo_id=3, tracked_objs=tracked_objs, 
+                                                    expected_sentiment=expected_sentiment,
+                                                    expected_style=expected_style, 
+                                                    expected_scene=expected_scene,
+                                                    expected_scene_cat=expected_scene_cat,
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     else:
-        analysis_result = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs, 
+        analysis_result, score  = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs, 
+                                                    expected_sentiment=expected_sentiment,
+                                                    expected_style=expected_style, 
+                                                    expected_scene=expected_scene,
+                                                    expected_scene_cat=expected_scene_cat,
                                                     confident_threshold = confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
 
@@ -125,7 +162,7 @@ def result():
 
     # SECTION 3
     section_3_tables = dict()
-    section_3_tables['Detected Object'] = summary_check_objects(analysis_result['Single Image View'], column_prefix='detected_')
+    section_3_tables['Detected Object'] = summary_check_objects(analysis_result['Detected Objects'], decimals=decimals)
     section_3_tables = process_result(**section_3_tables)
     
     # SECTION 4
@@ -154,6 +191,7 @@ def result():
     return render_template('result.html',
                             hashtag = hashtag,
                             source  = source,
+                            score = score,
                             section_1_tables = section_1_tables,
                             section_2_tables = section_2_tables,
                             section_3_tables = section_3_tables,
@@ -202,15 +240,10 @@ if __name__ == "__main__":
                                     association_metric = 'confidence',
                                     association_min_threshold = 1
 
-
                                 )
 
     
     app.run(debug = True, port = 5000)
 
-
-
-
     # Ref Html
-
     # https://uicookies.com/bootstrap-search-box/

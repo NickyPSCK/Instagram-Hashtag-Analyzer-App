@@ -42,6 +42,7 @@
           </div>
           <div class="advance-search">
             <div class="row">
+
               <div class="input-field">
                 <label style="color:white">SOURCE</label>
                 <div class="input-select">
@@ -55,6 +56,7 @@
                   </select>
                 </div>
               </div>
+
               <div class="input-field">
                 <label style="color:white">LIMIT</label>
                 <div class="input-select">
@@ -77,16 +79,59 @@
             </div>
 
             <div class="row">
-              <label style="color:white">Tracking Object</label>
+              <div class="input-field">
+                <label style="color:white">Target Sentiment</label>
+                <div class="input-select" required>
+                  <select data-trigger="" name="sentiments" >
+                    <option value="Positive" selected>Positive</option>
+                    <option value="Neutral">Neutral</option>
+                    <option value="Negative">Negative</option>
+                  </select>
+                </div>
+              </div>
             </div>
+
+            <label style="color:white">Tracking Object</label>
             <div class="row">
               <select  class="select" multiple name="objs">
                 {% for i in obj_dict %}
-                  {% if obj_dict[i]!="person" %}
-                    <option value={{obj_dict[i]}}>{{obj_dict[i]}}</option>
+                  {% if obj_dict[i]!="Person" and obj_dict[i]!="Cat" and obj_dict[i]!="Dog" %}
+                    <option value="{{obj_dict[i]}}">{{obj_dict[i]}}</option>
                   {% else %}
-                    <option value={{obj_dict[i]}} selected>{{obj_dict[i]}}</option>
+                    <option value="{{obj_dict[i]}}" selected>{{obj_dict[i]}}</option>
                   {% endif %}
+                {% endfor %}
+              </select>
+            </div>
+
+            <label style="color:white">Target Environment</label>
+            <div class="row">
+              <select  class="select" multiple name="scene_cats">
+
+                <option value="Indoor">Indoor</option>
+                <option value="Outdoor (Natural)">Outdoor (Natural)</option>
+                <option value="Outdoor (Man-Made)">Outdoor (Man-Made)</option>
+                <option value="Outdoor (Mixed)">Outdoor (Mixed)</option>
+
+              </select>
+            </div>
+
+            <label style="color:white">Target Style</label>
+
+            <div class="row">
+              <select  class="select" multiple name="styles" width=50%>
+                {% for i in style_dict %}
+                    <option value="{{style_dict[i]}}">{{style_dict[i]}}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <label style="color:white">Target Scene</label>
+
+            <div class="row">
+              <select  class="select" multiple name="scenes">
+                {% for i in scene_dict %}
+                    <option value="{{scene_dict[i]}}">{{scene_dict[i]}}</option>
                 {% endfor %}
               </select>
             </div>
@@ -129,12 +174,7 @@
                   </select>
                 </dc>
               </div>
-
             </div>
-
-
-
-
           </div>
         </div>
     </fieldset>

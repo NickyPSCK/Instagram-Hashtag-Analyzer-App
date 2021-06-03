@@ -6,21 +6,36 @@
     <meta name="author" content="colorlib.com">
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet" />
     <link href="{{ url_for('static', filename='css/bootstrap.min.css')}}" rel="stylesheet" />
-    
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link href="{{ url_for('static', filename='js/bootstrap.min.js')}}" rel="stylesheet" />
 
     <title>SMH: Analysis Report</title>
 
   </head>
+
   <body class="bg-light">
-    <!-- https://getbootstrap.com/docs/5.0/examples/offcanvas-navbar/ -->
+
   <style>
     body {
       background-image: url("{{ url_for('static', filename='images/s008.jpg')}}");
       background-repeat: no-repeat;
       background-attachment: fixed;
       background-size: cover;
+    }
+
+    .progress {
+      position: relative;
+    }
+
+    .progress-bar-title {
+      position: absolute;
+      text-align: center;
+      line-height: 20px; /* line-height should be equal to bar height */
+      overflow: hidden;
+      color: rgb(8, 8, 8);
+      right: 0;
+      left: 0;
+      top: 0;
     }
   </style>
 
@@ -36,6 +51,57 @@
 
         {% if show_result %}
 
+
+        <!-- SECTION 0 -->
+        <div class="my-3 p-3 bg-light bg-body rounded shadow-sm">
+          <h4 class="border-bottom pb-2 mb-0">Score</h4>
+          <p></p>
+          <div class="p-2 mb-4 bg-light rounded-3"> 
+            <h5 class="border-bottom pb-2 mb-0">Overall</h5>
+
+              <div class="progress" style="height: 30px;">
+                <div class="progress-bar" role="progressbar" style="width: {{score['overall']}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{score['overall']}}</div>
+              </div>
+
+          </div>
+
+          <div class="row align-items-md-stretch"> 
+            <div class="col-md-6">
+
+                <div class="p-2 mb-4 bg-light rounded-3"> 
+                  <h5 class="border-bottom pb-2 mb-0">General</h5>
+                  {% for value in score['expected'] %}
+                    <p></p>
+                    <h6 class="border-bottom pb-2 mb-0">{{value}} Score</h6>
+                    <div class="progress" style="height: 20px;">
+                      <div class="progress-bar" role="progressbar" style="width:  {{score['expected'][value]}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{score['expected'][value]}}</div>
+                    </div>
+                  {% endfor %}
+                </div>
+      
+            </div>
+
+            <div class="col-md-6">
+
+              <div class="p-2 mb-4 bg-light rounded-3"> 
+                <h5 class="border-bottom pb-2 mb-0">Object</h5>
+
+                {% for value in score['object'] %}
+                  <p></p>
+                  <h6 class="border-bottom pb-2 mb-0">{{value}} Score</h6>
+                  <div class="progress" style="height: 20px;">
+                    <div class="progress-bar" role="progressbar" style="width:  {{score['object'][value]}}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">{{score['object'][value]}}</div>
+                  </div>
+                {% endfor %}
+              </div>
+    
+          </div>
+
+          </div>
+        </div>
+
+
+
         <!-- SECTION 1 -->
         <div class="my-3 p-3 bg-light bg-body rounded shadow-sm">
           <h4 class="border-bottom pb-2 mb-0">Image Demographic</h4>
@@ -49,17 +115,22 @@
                     <thead class="thead-dark">
                       <tr>
                           {% for col in table['head'] %}
-                              <th scope="col">{{col}}</th>
+                              <th class="text-capitalize" scope="col">{{col}}</th>
                           {% endfor %}
                       </tr>
                     </thead>
                       <tbody>
                           {% for row_data in table['data'] %}
                           <tr>
-
-                              {% for col_data in row_data %}
+                              {% for col_data in (row_data | list)[:-1] %}
                                   <td>{{ col_data }}</td>
                               {% endfor %}
+                                  <td width="30%">
+                                    <div class="progress" style="height: 20px;">
+                                      <div class="progress-bar" role="progressbar" style="width:  {{ row_data[-1] }}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                      <div class="progress-bar-title">{{ row_data[-1] }}%</div>
+                                    </div>
+                                  </td>
                           </tr>
                           {% endfor %}
                       </tbody>
@@ -78,18 +149,23 @@
                     <thead class="thead-dark">
                       <tr>
                           {% for col in table['head'] %}
-                              <th scope="col">{{col}}</th>
+                              <th class="text-capitalize" scope="col">{{col}}</th>
                           {% endfor %}
                       </tr>
                     </thead>
                       <tbody>
                           {% for row_data in table['data'] %}
-                          <tr>
-
-                              {% for col_data in row_data %}
-                                  <td>{{ col_data }}</td>
-                              {% endfor %}
-                          </tr>
+                        <tr>
+                            {% for col_data in (row_data | list)[:-1] %}
+                                <td>{{ col_data }}</td>
+                            {% endfor %}
+                                <td width="30%">
+                                  <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar" role="progressbar" style="width:  {{ row_data[-1] }}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar-title">{{ row_data[-1] }}%</div>
+                                  </div>
+                                </td>
+                        </tr>
                           {% endfor %}
                       </tbody>
               
@@ -116,17 +192,22 @@
                     <thead class="thead-dark">
                       <tr>
                           {% for col in table['head'] %}
-                              <th scope="col">{{col}}</th>
+                              <th class="text-capitalize" scope="col">{{col}}</th>
                           {% endfor %}
                       </tr>
                     </thead>
                       <tbody>
                           {% for row_data in table['data'] %}
                           <tr>
-
-                              {% for col_data in row_data %}
-                                  <td>{{ col_data }}</td>
-                              {% endfor %}
+                            {% for col_data in (row_data | list)[:-1] %}
+                                <td>{{ col_data }}</td>
+                            {% endfor %}
+                                <td width="30%">
+                                  <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar" role="progressbar" style="width:  {{ row_data[-1] }}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar-title">{{ row_data[-1] }}%</div>
+                                  </div>
+                                </td>
                           </tr>
                           {% endfor %}
                       </tbody>
@@ -145,17 +226,22 @@
                     <thead class="thead-dark">
                       <tr>
                           {% for col in table['head'] %}
-                              <th scope="col">{{col}}</th>
+                              <th class="text-capitalize" scope="col">{{col}}</th>
                           {% endfor %}
                       </tr>
                     </thead>
                       <tbody>
                           {% for row_data in table['data'] %}
                           <tr>
-
-                              {% for col_data in row_data %}
-                                  <td>{{ col_data }}</td>
-                              {% endfor %}
+                            {% for col_data in (row_data | list)[:-1] %}
+                                <td>{{ col_data }}</td>
+                            {% endfor %}
+                                <td width="30%">
+                                  <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar" role="progressbar" style="width:  {{ row_data[-1] }}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar-title">{{ row_data[-1] }}%</div>
+                                  </div>
+                                </td>
                           </tr>
                           {% endfor %}
                       </tbody>
@@ -180,17 +266,22 @@
               <thead class="thead-dark">
                 <tr>
                     {% for col in table['head'] %}
-                        <th scope="col">{{col}}</th>
+                        <th class="text-capitalize" scope="col">{{col}}</th>
                     {% endfor %}
                 </tr>
               </thead>
                 <tbody>
                     {% for row_data in table['data'] %}
                     <tr>
-
-                        {% for col_data in row_data %}
-                            <td>{{ col_data }}</td>
-                        {% endfor %}
+                      {% for col_data in (row_data | list)[:-1] %}
+                          <td>{{ col_data }}</td>
+                      {% endfor %}
+                          <td width="50%">
+                            <div class="progress" style="height: 20px;">
+                              <div class="progress-bar" role="progressbar" style="width:  {{ row_data[-1] }}%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                              <div class="progress-bar-title">{{ row_data[-1] }}%</div>
+                            </div>
+                          </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -212,7 +303,7 @@
               <thead class="thead-dark">
                 <tr>
                     {% for col in table['head'] %}
-                        <th scope="col">{{col}}</th>
+                        <th class="text-capitalize" scope="col">{{col}}</th>
                     {% endfor %}
                 </tr>
               </thead>
@@ -245,13 +336,12 @@
               <thead class="thead-dark">
                 <tr>
                     {% for col in table['head'] %}
-                        <th scope="col">{{col}}</th>
+                        <th class="text-capitalize" scope="col">{{col}}</th>
                     {% endfor %}
                 </tr>
               </thead>
                 <tbody>
                     {% for row_data in table['data'] %}
-                    
                     <tr> 
                       <td> 
                         <figure class="figure" >
@@ -282,7 +372,7 @@
               <thead class="thead-dark">
                 <tr>
                     {% for col in table['head'] %}
-                        <th scope="col">{{col}}</th>
+                        <th class="text-capitalize" scope="col">{{col}}</th>
                     {% endfor %}
                 </tr>
               </thead>
@@ -308,39 +398,8 @@
 
         {% endif %}
         </main>  
-
-
-
-
-        
-      <!-- <div class="container">
-        <p>
-          <a class="btn btn-primary" data-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1">Toggle first element</a>
-          <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#multiCollapseExample2" aria-expanded="false" aria-controls="multiCollapseExample2">Toggle second element</button>
-          <button class="btn btn-primary" type="button" data-toggle="collapse" data-target=".multi-collapse" aria-expanded="false" aria-controls="multiCollapseExample1 multiCollapseExample2">Toggle both elements</button>
-        </p>
-        <div class="row">
-          <div class="col">
-            <div class="collapse multi-collapse" id="multiCollapseExample1">
-              <div class="card card-body">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="collapse multi-collapse" id="multiCollapseExample2">
-              <div class="card card-body">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> -->
-
-
-    <!-- </div> -->
     <script src="{{ url_for('static', filename='js/extention/choices.js')}}"></script>
 
     <div class="bg"></div>
-  </body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+  </body>
 </html>
