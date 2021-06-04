@@ -75,7 +75,6 @@ def result():
 
     expected_sentiment = form_data.get('sentiments',None)[0]
     expected_style = form_data.get('styles',None)
-    print(expected_style)
     expected_scene = form_data.get('scenes',None)
     expected_scene_cat = form_data.get('scene_cats',None)
 

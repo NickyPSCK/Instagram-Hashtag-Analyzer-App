@@ -300,9 +300,9 @@ class ImageAnalyzer:
         result_overall = tuple(result_overall.values())
 
         if len(result_overall) > 0:
-            result_overall = sum(result_overall)/len(result_overall)
+            result_overall = round((sum(result_overall)/len(result_overall)), decimals)
         else:
-            result_overall = 0
+            result_overall = 0.0
 
         return {'overall': result_overall, 'expected':result_score, 'object':result_object_score}
 
