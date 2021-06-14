@@ -259,9 +259,13 @@ class ImageAnalyzer:
                 sentiment_score = (sentiment_score['factor'] * sentiment_score['score']).sum()/4
 
             elif expected_sentiment == 'Neutral':
-                factor = {'Highly Positive':2, 'Positive':1, 'Neutral':0, 'Negative':1, 'Highly Negative':2}
+                # factor = {'Highly Positive':2, 'Positive':1, 'Neutral':0, 'Negative':1, 'Highly Negative':2}
+                # sentiment_score['factor'] = sentiment_score['index'].map(factor)
+                # sentiment_score = 1 - (sentiment_score['factor'] * sentiment_score['score']).sum()/2        
+
+                factor = {'Highly Positive':0, 'Positive':1, 'Neutral':2, 'Negative':1, 'Highly Negative':0}
                 sentiment_score['factor'] = sentiment_score['index'].map(factor)
-                sentiment_score = 1 - (sentiment_score['factor'] * sentiment_score['score']).sum()/2        
+                sentiment_score = (sentiment_score['factor'] * sentiment_score['score']).sum()/2      
 
             result_score['Sentiment'] = round(sentiment_score*100, decimals)
         
@@ -293,7 +297,7 @@ class ImageAnalyzer:
         object_score['%'] = object_score['%']
         object_score = round_df(object_score, decimals=decimals)
         result_object_score = dict(object_score.to_records(index=False))
-        print(result_object_score)
+        # print(result_object_score)
         result_overall = dict()
         result_overall.update(result_score)
         result_overall.update(result_object_score)

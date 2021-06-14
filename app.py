@@ -79,6 +79,7 @@ def result():
     expected_scene_cat = form_data.get('scene_cats',None)
 
     if source == 'Flickr':
+        source_text = 'Flickr Hashtag'
         analysis_result, score = analyzer.analyze_flickr(hashtag=hashtag, limit=limit, tracked_objs=tracked_objs, 
                                                     expected_sentiment=expected_sentiment,
                                                     expected_style=expected_style, 
@@ -87,6 +88,7 @@ def result():
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     elif source == 'Instagram_Account':
+        source_text = 'Instagram Account'
         analysis_result, score  = analyzer.analyze_ig(target=hashtag, mode='account', limit=limit, tracked_objs=tracked_objs, 
                                                     expected_sentiment=expected_sentiment,
                                                     expected_style=expected_style, 
@@ -95,6 +97,7 @@ def result():
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     elif source == 'Instagram_Hashtag':
+        source_text = 'Instagram Hashtag'
         analysis_result, score  = analyzer.analyze_ig(target=hashtag, mode='hashtag',limit=limit, tracked_objs=tracked_objs, 
                                                     expected_sentiment=expected_sentiment,
                                                     expected_style=expected_style, 
@@ -103,7 +106,8 @@ def result():
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     elif source == 'Demo1':
-        hashtag = 'DEMO1'
+        source_text = 'Demo1'
+        hashtag = 'Demo1'
         analysis_result, score  = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs, 
                                                     expected_sentiment=expected_sentiment,
                                                     expected_style=expected_style, 
@@ -112,7 +116,8 @@ def result():
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
     elif source == 'Demo2':
-        hashtag = 'DEMO2'
+        source_text = 'Demo2'
+        hashtag = 'Demo2'
         analysis_result, score  = analyzer.analyze_demo(demo_id=2, tracked_objs=tracked_objs, 
                                                     expected_sentiment=expected_sentiment,
                                                     expected_style=expected_style, 
@@ -121,7 +126,8 @@ def result():
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold=non_maxium_suppression_threshold)
     elif source == 'Demo3':
-        hashtag = 'DEMO3'
+        source_text = 'Demo3'
+        hashtag = 'Demo3'
         analysis_result, score  = analyzer.analyze_demo(demo_id=3, tracked_objs=tracked_objs, 
                                                     expected_sentiment=expected_sentiment,
                                                     expected_style=expected_style, 
@@ -129,7 +135,64 @@ def result():
                                                     expected_scene_cat=expected_scene_cat,
                                                     confident_threshold=confident_threshold, 
                                                     non_maxium_suppression_threshold = non_maxium_suppression_threshold)
+
+    elif source == 'USER_errorbxx':
+        source_text = 'Instagram Account'
+        hashtag = 'errorbxx'
+        analysis_result, score  = analyzer.analyze_demo(demo_id=6, tracked_objs=tracked_objs, 
+                                                    expected_sentiment=expected_sentiment,
+                                                    expected_style=expected_style, 
+                                                    expected_scene=expected_scene,
+                                                    expected_scene_cat=expected_scene_cat,
+                                                    confident_threshold=confident_threshold, 
+                                                    non_maxium_suppression_threshold = non_maxium_suppression_threshold)
+    elif source == 'USER_joeybangkokboy':
+        source_text = 'Instagram Account'
+        hashtag = 'joeybangkokboy'
+        analysis_result, score  = analyzer.analyze_demo(demo_id=7, tracked_objs=tracked_objs, 
+                                                    expected_sentiment=expected_sentiment,
+                                                    expected_style=expected_style, 
+                                                    expected_scene=expected_scene,
+                                                    expected_scene_cat=expected_scene_cat,
+                                                    confident_threshold=confident_threshold, 
+                                                    non_maxium_suppression_threshold = non_maxium_suppression_threshold)
+
+    elif source == 'USER_marie_broenner':
+        source_text = 'Instagram Account'
+        hashtag = 'marie_broenner'
+        analysis_result, score  = analyzer.analyze_demo(demo_id=8, tracked_objs=tracked_objs, 
+                                                    expected_sentiment=expected_sentiment,
+                                                    expected_style=expected_style, 
+                                                    expected_scene=expected_scene,
+                                                    expected_scene_cat=expected_scene_cat,
+                                                    confident_threshold=confident_threshold, 
+                                                    non_maxium_suppression_threshold = non_maxium_suppression_threshold)
+
+    elif source == 'USER_sirinissirin':
+        source_text = 'Instagram Account'
+        hashtag = 'sirinissirin'
+        analysis_result, score  = analyzer.analyze_demo(demo_id=4, tracked_objs=tracked_objs, 
+                                                    expected_sentiment=expected_sentiment,
+                                                    expected_style=expected_style, 
+                                                    expected_scene=expected_scene,
+                                                    expected_scene_cat=expected_scene_cat,
+                                                    confident_threshold=confident_threshold, 
+                                                    non_maxium_suppression_threshold = non_maxium_suppression_threshold)
+
+    elif source == 'USER_weir_____things':
+        source_text = 'Instagram Account'
+        hashtag = 'weir_____things'
+        analysis_result, score  = analyzer.analyze_demo(demo_id=5, tracked_objs=tracked_objs, 
+                                                    expected_sentiment=expected_sentiment,
+                                                    expected_style=expected_style, 
+                                                    expected_scene=expected_scene,
+                                                    expected_scene_cat=expected_scene_cat,
+                                                    confident_threshold=confident_threshold, 
+                                                    non_maxium_suppression_threshold = non_maxium_suppression_threshold)
+
     else:
+        source_text = "Demo1"
+        hashtag = 'Demo1'
         analysis_result, score  = analyzer.analyze_demo(demo_id=1, tracked_objs=tracked_objs, 
                                                     expected_sentiment=expected_sentiment,
                                                     expected_style=expected_style, 
@@ -144,6 +207,7 @@ def result():
     # RESULT PART
     # -------------------------------------------------------------------------------------------
 
+    no_of_image = len(analysis_result['Single Image View'])
     # SECTION 1
     section_1_tables = dict()
     section_1_tables['Images Size'] = summary_single_view(analysis_result['Single Image View'], key=['width', 'height'], decimals=decimals)
@@ -189,7 +253,8 @@ def result():
 
     return render_template('result.html',
                             hashtag = hashtag,
-                            source  = source,
+                            source_text  = source_text,
+                            no_of_image = no_of_image,
                             score = score,
                             section_1_tables = section_1_tables,
                             section_2_tables = section_2_tables,

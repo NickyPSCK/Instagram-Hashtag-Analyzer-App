@@ -162,8 +162,22 @@ class HashtagAnalyzer:
                             confident_threshold:float=0.5, 
                             non_maxium_suppression_threshold:float=0.3):
 
-        result_dir = f'static/downloads/hashtag/demo/demo{demo_id}/'
-        target_result_dir = f'{result_dir}*.jpg'
+        result_dirs = {
+                            1: 'static/downloads/hashtag/demo/demo1/',
+                            2: 'static/downloads/hashtag/demo/demo2/',
+                            3: 'static/downloads/hashtag/demo/demo3/',
+                            4: 'static/downloads/hashtag/demo/user/errorbxx/',
+                            5: 'static/downloads/hashtag/demo/user/joeybangkokboy/',
+                            6: 'static/downloads/hashtag/demo/user/marie_broenner/',
+                            7: 'static/downloads/hashtag/demo/user/sirinissirin/',
+                            8: 'static/downloads/hashtag/demo/user/weir_____things/',
+        }
+
+        # result_dir = f'static/downloads/hashtag/demo/demo{demo_id}/'
+
+        target_result_dir = f'{result_dirs[demo_id]}*.jpg'
+
+        print(target_result_dir)
 
         print('Analyzing..')
         self.__analyzer.load_image(target_result_dir)
