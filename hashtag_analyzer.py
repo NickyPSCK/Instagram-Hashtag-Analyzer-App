@@ -168,9 +168,11 @@ class HashtagAnalyzer:
                             3: 'static/downloads/hashtag/demo/demo3/',
                             4: 'static/downloads/hashtag/demo/user/errorbxx/',
                             5: 'static/downloads/hashtag/demo/user/joeybangkokboy/',
-                            6: 'static/downloads/hashtag/demo/user/marie_broenner/',
+                            6: 'static/downloads/hashtag/demo/user/apitsada/',
                             7: 'static/downloads/hashtag/demo/user/sirinissirin/',
                             8: 'static/downloads/hashtag/demo/user/weir_____things/',
+                            9: 'static/downloads/hashtag/demo/user/paloyh/',
+                            10: 'static/downloads/hashtag/demo/user/toeyjarinporn/',
         }
 
         # result_dir = f'static/downloads/hashtag/demo/demo{demo_id}/'
